@@ -9,9 +9,8 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      font-family:  Calibri  !important;
     }
-
     body {
       background-color: #6c6c70; /* Светлее серый фон, как в приложении */
       height: 100vh;
@@ -35,24 +34,25 @@
       padding-top: 36px;
       z-index: 1;
       /* Легкое затемнение только для верхних элементов */
-      opacity: 0.55; 
+      opacity: 1; 
       filter: brightness(0.85);
     }
 
     .bg-title {
       font-size: 16px;
-      font-weight: 500;
-      color: #ffffff;
+      font-weight: 550;
+      color: #000000;
       margin-bottom: 20px;
-      letter-spacing: -0.2px;
+      letter-spacing: 0.5px;
     }
 
     /* ЗЕЛЕНЫЙ КРУГ С ГАЛОЧКОЙ */
     .success-circle {
-      width: 60px;
-      height: 60px;
-      background-color: #28a745;
+      width: 55px;
+      height: 55px;
+      background-color:#347230;
       border-radius: 50%;
+      margin-top: 23px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -61,17 +61,17 @@
     .success-circle svg {
       width: 32px;
       height: 32px;
-      stroke: #ffffff;
-      stroke-width: 3.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+      stroke: #a0a0a0;
+      stroke-width: 2.8;
+      stroke-linecap: square;
+      stroke-linejoin: square;
       fill: none;
     }
 
     /* БЕЛАЯ ШТОРКА */
     .sheet {
       position: absolute;
-      top: 138px; /* Чуть перекрывает круг */
+      top: 147px; /* Чуть перекрывает круг */
       left: 0;
       right: 0;
       bottom: 0;
@@ -87,7 +87,7 @@
     }
 
     .handle {
-      width: 36px;
+      width: 30px;
       height: 4px;
       background-color: #d1d1d6;
       border-radius: 2px;
@@ -105,6 +105,7 @@
     .sheet-title {
       font-size: 20px;
       font-weight: 700;
+      margin-left: -6px;
       color: #000000;
       line-height: 1.25;
       letter-spacing: -0.3px;
@@ -128,15 +129,15 @@
     }
 
     .qr-image {
-      width: 225px;
-      height: 225px;
+      width: 180px;
+      height: 210px;
       object-fit: contain;
     }
 
     .qr-subtext {
-      font-size: 14px;
+      font-size: 16px;
       color: #8e8e93;
-      margin-top: 10px;
+      margin-top: 17px;
       font-weight: 400;
     }
 
@@ -148,21 +149,25 @@
 
     /* НЕ ЖИРНЫЙ КОД АВТОБУСА */
     .info-code {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 400; /* Не жирный */
       margin-bottom: 5px;
+      margin-top: 15px;
     }
 
     .info-date {
       font-size: 14px;
       color: #000000;
       margin-bottom: 4px;
+      margin-top: 15px;
     }
 
     .info-price {
       font-size: 15px;
       font-weight: 400;
       color: #000000;
+      margin-top: -5px;
+      margin-left: 7px;
     }
 
     /* КНОПКИ ДЕЙСТВИЙ */
@@ -174,18 +179,18 @@
    }
     .actions-bar {
      width: 100%;
-     max-width: 240px;
+     max-width: 260px;
      margin-top: auto;
      display: flex;
      justify-content: space-around;
-     padding-bottom: 12px;
+     padding-bottom: -15px;
     }
 
     .action-btn {
      display: flex;
      flex-direction: column;
      align-items: center;
-     gap: 6px;
+     gap: 15px;
      cursor: pointer;
     }
 
@@ -255,6 +260,10 @@
         </svg>
         <span class="action-label">Поделиться</span>
       </div>
+    </div>
+    </div>
+  </body>
+  </html>
     </div>
     </div>
   </body>
