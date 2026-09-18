@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Настройки для прозрачности и светлого фона статус-бара -->
   <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Avtobys Payment Replica</title>
   <style>
     * {
@@ -12,9 +15,16 @@
       padding: 0;
       font-family: Calibri, sans-serif !important;
     }
+    html {
+      background-color: #ffffff;
+      height: 100%;
+    }
     body {
       background-color: #ffffff;
-      height: 100vh;
+      min-height: 100vh;
+      /* Растягиваем контент под прозрачный статус-бар и нижнюю панель жестов iOS/Android */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
@@ -22,14 +32,14 @@
       position: relative;
     }
 
-    /* ФИКСИРОВАННАЯ ШАПКА (Никогда не сдвигается) */
+    /* ФИКСИРОВАННАЯ ШАПКА C ПРАВИЛЬНЫМ ОТСТУПОМ */
     .static-header {
       width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 30px;
-      padding-bottom: 10px;
+      padding-top: calc(20px + env(safe-area-inset-top)); 
+      padding-bottom: 15px;
       background: #ffffff;
       z-index: 1;
     }
@@ -38,12 +48,12 @@
       font-size: 16px;
       font-weight: 550;
       color: #000000;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .main-success-circle {
-      width: 60px;
-      height: 60px;
+      width: 65px;
+      height: 65px;
       background-color: #00b018;
       border-radius: 50%;
       display: flex;
@@ -52,18 +62,18 @@
     }
 
     .main-success-circle svg {
-      width: 35px;
-      height: 35px;
+      width: 38px;
+      height: 38px;
       stroke: #ffffff;
       stroke-width: 3;
       fill: none;
     }
 
-    /* ОСНОВНОЙ КОНТЕНТ СТРАНИЦЫ */
+    /* ОСНОВНОЙ КОНТЕНТ */
     .main-screen {
       width: 100%;
       max-width: 420px;
-      padding: 10px 18px 20px 18px;
+      padding: 10px 18px calc(80px + env(safe-area-inset-bottom)) 18px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -73,15 +83,15 @@
       font-size: 22px;
       font-weight: 600;
       color: #000;
-      margin-bottom: 6px;
-      margin-top: 10px;
+      margin-bottom: 8px;
+      margin-top: 5px;
     }
 
     .payment-amount {
       font-size: 36px;
       font-weight: 700;
       color: #000;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
 
     /* КНОПКА ПОКАЗАТЬ БИЛЕТ */
@@ -114,15 +124,16 @@
       width: 100%;
       border-top: 1px solid #f0f0f0;
       padding-top: 15px;
-      margin-bottom: 70px;
+      margin-bottom: 20px;
     }
 
     .ads-title { font-size: 16px; font-weight: 600; color: #000; margin-bottom: 12px; }
     .ads-image { width: 100%; border-radius: 8px; display: block; }
 
+    /* НИЖНЯЯ КНОПКА C УЧЕТОМ ЖЕСТОВОЙ ПАНЕЛИ IPHONE/ANDROID */
     .bottom-btn {
       position: fixed;
-      bottom: 15px;
+      bottom: calc(15px + env(safe-area-inset-bottom));
       width: calc(100% - 32px);
       max-width: 388px;
       background: #0066ff;
@@ -136,7 +147,7 @@
       z-index: 5;
     }
 
-    /* ПОЛУПРОЗРАЧНЫЙ ФОН ПРИ ОТКРЫТИИ БИЛЕТА */
+    /* ФОН ПРИ ОТКРЫТОМ БИЛЕТЕ */
     .backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -152,15 +163,15 @@
       pointer-events: auto;
     }
 
-    /* ВЫЕЗЖАЮЩАЯ ШТОРКА C QR (Только она анимируется) */
+    /* ШТОРКА (Выезжает снизу) */
     .sheet {
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      height: 82vh; /* Выезжает почти на весь экран */
+      height: calc(79vh + env(safe-area-inset-bottom));
       background: #ffffff;
       border-top-left-radius: 22px;
       border-top-right-radius: 22px;
-      padding: 12px 22px 24px 22px;
+      padding: 12px 22px calc(24px + env(safe-area-inset-bottom)) 22px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -228,21 +239,27 @@
     }
 
     .info-block { text-align: center; color: #000; }
-    .info-code { font-size: 16px; margin-top: 15px; outline: none; }
+    .info-code { font-size: 16px; margin-top: 15px; font-weight: 700; outline: none; }
     .info-date { font-size: 14px; margin-top: 15px; outline: none; }
-    .info-price { font-size: 15px; margin-top: -5px; }
+    .info-price { font-size: 15px; margin-top: 2px; }
 
     .action-icon-img { width: 28px; height: 28px; object-fit: contain; }
     .actions-bar {
       width: 100%; max-width: 260px;
       margin-top: auto; display: flex; justify-content: space-around;
+      padding-bottom: env(safe-area-inset-bottom);
     }
     .action-btn { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+    #settings-modal input {
+      -webkit-user-select: text !important;
+      user-select: text !important;
+    }
   </style>
 </head>
 <body>
 
-  <!-- ВЕРХНЯЯ СТАТИЧНАЯ ШАПКА (Она одна для всего) -->
+  <!-- ВЕРХНЯЯ ШАПКА -->
   <div class="static-header">
     <div class="main-title">Билет Avtobys. Оплата проезда</div>
     <div class="main-success-circle">
@@ -257,7 +274,7 @@
     <div class="payment-status">Ваш платеж принят.</div>
     <div class="payment-amount">80 ₸</div>
 
-    <!-- КНОПКА ОТКРЫТИЯ ШТОРКИ -->
+    <!-- КНОПКА ПОКАЗАТЬ БИЛЕТ -->
     <div class="ticket-btn" onclick="openTicket()">
       <div class="ticket-btn-left">
         <svg class="ticket-btn-icon" viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2">
@@ -285,7 +302,7 @@
     <div class="bottom-btn">Вернуться в Платежи</div>
   </div>
 
-  <!-- ВЫЕЗЖАЮЩАЯ ШТОРКА (Только QR и детали) -->
+  <!-- ВЫЕЗЖАЮЩАЯ ШТОРКА -->
   <div id="backdrop" class="backdrop" onclick="closeTicket()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="handle"></div>
@@ -298,14 +315,14 @@
         </svg>
       </div>
 
-      <div class="qr-container">
+      <div class="qr-container" onclick="openSettings()">
         <img class="qr-image" src="QR.png" alt="QR Code">
         <div class="qr-subtext">Покажите QR-код контролеру</div>
       </div>
 
       <div class="info-block">
         <div class="info-code" id="bus-code" contenteditable="true">281AW06</div>
-        <div class="info-date" id="date-time" contenteditable="true">16 сентября 2026 22:07</div>
+        <div class="info-date" id="date-time" contenteditable="true">18 сентября 2026 22:07</div>
         <div class="info-price">Сумма 80 ₸</div>
       </div>
 
@@ -325,21 +342,12 @@
     </div>
   </div>
 
-  <script>
-    function openTicket() {
-      document.getElementById("backdrop").classList.add("active");
-    }
-
-    function closeTicket() {
-      document.getElementById("backdrop").classList.remove("active");
-    }
-  </script>
-  <!-- Окно настроек -->
+  <!-- ОКНО НАСТРОЕК (По клику на QR) -->
   <div id="settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #fff; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; color: #000;">
       <h3 style="margin-bottom: 15px; font-size: 16px; text-align: center;">Редактировать данные</h3>
       
-      <label style="font-size: 12px; color: #666;">Код автобуса:</label>
+      <label style="font-size: 12px; color: #666;">Код автобуса / госномер:</label>
       <input type="text" id="input-bus-code" style="width: 100%; padding: 10px; margin: 4px 0 12px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
       
       <label style="font-size: 12px; color: #666;">Дата и время:</label>
@@ -352,7 +360,6 @@
     </div>
   </div>
 
-  <!-- СКРИПТ УПРАВЛЕНИЯ -->
   <script>
     const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 
@@ -364,14 +371,18 @@
       if (savedDate) document.getElementById("date-time").innerText = savedDate;
     });
 
+    function openTicket() {
+      document.getElementById("backdrop").classList.add("active");
+    }
+
+    function closeTicket() {
+      document.getElementById("backdrop").classList.remove("active");
+    }
+
     function openSettings() {
       document.getElementById("input-bus-code").value = document.getElementById("bus-code").innerText;
       document.getElementById("input-date-time").value = document.getElementById("date-time").innerText;
       document.getElementById("settings-modal").style.display = "flex";
-      
-      setTimeout(() => {
-        document.getElementById("input-bus-code").focus();
-      }, 100);
     }
 
     function saveSettings() {
