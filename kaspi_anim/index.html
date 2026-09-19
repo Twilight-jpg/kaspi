@@ -167,7 +167,7 @@
     .sheet {
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      height: calc(79vh + env(safe-area-inset-bottom));
+      height: calc(77vh + env(safe-area-inset-bottom));
       background: #ffffff;
       border-top-left-radius: 22px;
       border-top-right-radius: 22px;
@@ -190,7 +190,7 @@
       width: 32px;
       height: 4px;
       background-color: #d1d1d6;
-      border-radius: 2px;
+      border-radius: 20px;
       margin-bottom: 14px;
     }
 
@@ -199,7 +199,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 15px;
+      margin-bottom: 35px;
     }
 
     .sheet-title {
@@ -215,7 +215,7 @@
       stroke: #000000;
       stroke-width: 2.2;
       cursor: pointer;
-      margin-top: 4px;
+      margin-top: 10px;
     }
 
     .qr-container {
@@ -227,7 +227,7 @@
     }
 
     .qr-image {
-      width: 200px; /* В оригинале занимает ~68% ширины шторки */
+      width: 190px; /* В оригинале занимает ~68% ширины шторки */
       max-width: 240px;
       height: auto;
       aspect-ratio: 1 / 1;
@@ -236,16 +236,16 @@
     }
 
     .qr-subtext {
-      font-size: 14px;
+      font-size: 16px;
       color: #8e8e93;
-      margin-top: 17px;
-      margin-bottom: 24px;
+      margin-top: 35px;
+      margin-bottom: 10px;
     }
 
     .info-block { text-align: center; margin-bottom: 40px; color: #000; }
-    .info-code { font-size: 16px; margin-top: 15px; font-weight: 700; outline: none; }
-    .info-date { font-size: 14px; margin-top: 15px; outline: none; }
-    .info-price { font-size: 15px; margin-top: 2px; }
+    .info-code { font-size: 16px; margin-top: 2px; font-weight: 700; outline: none; }
+    .info-date { font-size: 16px; margin-top: 18px; outline: none; }
+    .info-price { font-size: 16px; margin-top: 2px; }
 
     .action-icon-img { width: 28px; height: 28px; object-fit: contain; }
     .actions-bar {
