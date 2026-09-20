@@ -8,6 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Avtobys Payment Replica</title>
+  
+  <!-- Скрипт распознавания QR-кодов -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -22,7 +26,6 @@
     body {
       background-color: #ffffff;
       min-height: 100vh;
-      /* Растягиваем контент под прозрачный статус-бар и нижнюю панель жестов iOS/Android */
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       overflow-x: hidden;
@@ -32,7 +35,7 @@
       position: relative;
     }
 
-    /* ФИКСИРОВАННАЯ ШАПКА C ПРАВИЛЬНЫМ ОТСТУПОМ */
+    /* ФИКСИРОВАННАЯ ШАПКА */
     .static-header {
       width: 100%;
       display: flex;
@@ -130,7 +133,7 @@
     .ads-title { font-size: 16px; font-weight: 600; color: #000; margin-bottom: 12px; }
     .ads-image { width: 100%; border-radius: 8px; display: block; }
 
-    /* НИЖНЯЯ КНОПКА C УЧЕТОМ ЖЕСТОВОЙ ПАНЕЛИ IPHONE/ANDROID */
+    /* НИЖНЯЯ КНОПКА */
     .bottom-btn {
       position: fixed;
       bottom: calc(15px + env(safe-area-inset-bottom));
@@ -145,6 +148,7 @@
       font-weight: 600;
       box-shadow: 0 4px 12px rgba(0,102,255,0.2);
       z-index: 5;
+      cursor: pointer;
     }
 
     /* ФОН ПРИ ОТКРЫТОМ БИЛЕТЕ */
@@ -177,7 +181,6 @@
       align-items: center;
       z-index: 101;
       box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
-      
       transform: translateY(100%);
       transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
     }
@@ -227,7 +230,7 @@
     }
 
     .qr-image {
-      width: 190px; /* В оригинале занимает ~68% ширины шторки */
+      width: 190px;
       max-width: 240px;
       height: auto;
       aspect-ratio: 1 / 1;
@@ -259,11 +262,132 @@
       -webkit-user-select: text !important;
       user-select: text !important;
     }
+
+    /* СТИЛИ ЭКРАНА СКАНЕРА KASPI QR */
+    #scanner-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #000;
+      z-index: 500;
+      overflow: hidden;
+    }
+    .scanner-header {
+      position: absolute;
+      top: calc(12px + env(safe-area-inset-top));
+      left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 510;
+      color: #fff;
+    }
+    .scanner-title {
+      font-size: 18px;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
+      margin-left: 24px;
+    }
+    .scanner-close {
+      font-size: 20px;
+      cursor: pointer;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .scanner-prompt {
+      position: absolute;
+      top: 20%; left: 0; right: 0;
+      text-align: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 600;
+      z-index: 510;
+    }
+    #webcam {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .scanner-overlay-box {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .scanner-frame {
+      width: 250px;
+      height: 250px;
+      border: 3px solid #f25222;
+      border-radius: 20px;
+      box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.55);
+    }
+    .flashlight-btn {
+      position: absolute;
+      bottom: calc(120px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 510;
+    }
+    .scanner-footer-banner {
+      position: absolute;
+      bottom: calc(15px + env(safe-area-inset-bottom));
+      left: 16px; right: 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      color: #000;
+      z-index: 510;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- ВЕРХНЯЯ ШАПКА -->
+  <!-- 1. ЭКРАН СКАНЕРА KASPI QR -->
+  <div id="scanner-screen">
+    <div class="scanner-header">
+      <div class="scanner-title">Kaspi QR</div>
+      <div class="scanner-close" onclick="closeScanner()">✕</div>
+    </div>
+
+    <div class="scanner-prompt">Сканируйте QR-код</div>
+
+    <video id="webcam" playsinline></video>
+    <canvas id="qr-canvas" style="display:none;"></canvas>
+
+    <div class="scanner-overlay-box">
+      <div class="scanner-frame"></div>
+    </div>
+
+    <div class="flashlight-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
+        <path d="M7 2h10l-2 5h3l-8 15 1-9H7l2-11z"/>
+      </svg>
+    </div>
+
+    <div class="scanner-footer-banner">
+      <div style="font-size: 16px; font-weight: 600;">Оформить онлайн</div>
+      <div style="font-size: 13px; color: #666; display: flex; align-items: center; gap: 8px;">
+        <span style="background: #fbc02d; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px;">0·0·24</span>
+        Рассрочка 0-0-24
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ВЕРХНЯЯ ШАПКА -->
   <div class="static-header">
     <div class="main-title">Билет Avtobys. Оплата проезда</div>
     <div class="main-success-circle">
@@ -273,7 +397,7 @@
     </div>
   </div>
 
-  <!-- ОСНОВНОЙ ЭКРАН -->
+  <!-- 3. ОСНОВНОЙ ЭКРАН -->
   <div class="main-screen">
     <div class="payment-status">Ваш платеж принят.</div>
     <div class="payment-amount">80 ₸</div>
@@ -303,10 +427,10 @@
       <img src="ads.png" alt="Вас могут заинтересовать" class="ads-image">
     </div>
 
-    <div class="bottom-btn">Вернуться в Платежи</div>
+    <div class="bottom-btn" onclick="openScanner()">Сканировать QR (Kaspi QR)</div>
   </div>
 
-  <!-- ВЫЕЗЖАЮЩАЯ ШТОРКА -->
+  <!-- 4. ВЫЕЗЖАЮЩАЯ ШТОРКА -->
   <div id="backdrop" class="backdrop" onclick="closeTicket()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="handle"></div>
@@ -346,7 +470,7 @@
     </div>
   </div>
 
-  <!-- ОКНО НАСТРОЕК (По клику на QR) -->
+  <!-- 5. ОКНО НАСТРОЕК (По клику на QR) -->
   <div id="settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #fff; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; color: #000;">
       <h3 style="margin-bottom: 15px; font-size: 16px; text-align: center;">Редактировать данные</h3>
@@ -366,6 +490,8 @@
 
   <script>
     const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+    let videoStream = null;
+    let isScanning = false;
 
     document.addEventListener("DOMContentLoaded", () => {
       const savedCode = localStorage.getItem("bus_code");
@@ -375,6 +501,7 @@
       if (savedDate) document.getElementById("date-time").innerText = savedDate;
     });
 
+    /* ШТОРКА БИЛЕТА */
     function openTicket() {
       document.getElementById("backdrop").classList.add("active");
     }
@@ -383,6 +510,7 @@
       document.getElementById("backdrop").classList.remove("active");
     }
 
+    /* РЕДАКТИРОВАНИЕ ДАННЫХ */
     function openSettings() {
       document.getElementById("input-bus-code").value = document.getElementById("bus-code").innerText;
       document.getElementById("input-date-time").value = document.getElementById("date-time").innerText;
@@ -410,7 +538,72 @@
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
 
-      document.getElementById("input-date-time").value = `${day} ${month} ${year} ${hours}:${minutes}`;
+      const formatted = `${day} ${month} ${year} ${hours}:${minutes}`;
+      document.getElementById("input-date-time").value = formatted;
+      return formatted;
+    }
+
+    /* ЛОГИКА СКАНЕРА */
+    function openScanner() {
+      const scannerScreen = document.getElementById("scanner-screen");
+      const video = document.getElementById("webcam");
+      scannerScreen.style.display = "block";
+      isScanning = true;
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+          videoStream = stream;
+          video.srcObject = stream;
+          video.setAttribute("playsinline", true);
+          video.play();
+          requestAnimationFrame(scanTick);
+        })
+        .catch(err => {
+          alert("Не удалось получить доступ к камере: " + err);
+          closeScanner();
+        });
+    }
+
+    function scanTick() {
+      if (!isScanning) return;
+
+      const video = document.getElementById("webcam");
+      const canvas = document.getElementById("qr-canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        // При обнаружении любого QR-кода:
+        if (code) {
+          isScanning = false;
+          closeScanner();
+          
+          // Обновляем время на текущее
+          const newTime = autoSetCurrentTime();
+          document.getElementById("date-time").innerText = newTime;
+          localStorage.setItem("bus_date", newTime);
+
+          // Сразу открываем билет
+          openTicket();
+          return;
+        }
+      }
+      requestAnimationFrame(scanTick);
+    }
+
+    function closeScanner() {
+      isScanning = false;
+      document.getElementById("scanner-screen").style.display = "none";
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+      }
     }
   </script>
 </body>
