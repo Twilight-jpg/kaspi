@@ -9,7 +9,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
@@ -23,7 +23,6 @@
       flex-direction: column;
     }
 
-    /* Главный экран / Сканер */
     .screen {
       display: none;
       width: 100%;
@@ -38,6 +37,7 @@
       display: flex;
     }
 
+    /* 1. Сканер */
     #scanner-screen {
       background-color: #000000;
     }
@@ -110,7 +110,7 @@
       box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.65);
     }
 
-    /* Экран оплаты билета */
+    /* 2. Экран перед оплатой */
     #ticket-screen {
       background-color: #f2f2f7;
       color: #000000;
@@ -130,7 +130,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      margin-right: 16px;
+      margin-right: 12px;
     }
 
     .back-btn svg {
@@ -140,13 +140,14 @@
     }
 
     .app-title {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 600;
       color: #000000;
+      letter-spacing: -0.2px;
     }
 
     .content-area {
-      padding: 24px 16px;
+      padding: 20px 16px;
       flex: 1;
     }
 
@@ -154,16 +155,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 18px;
     }
 
     .summary-label {
       color: #000000;
-      font-size: 18px;
+      font-size: 17px;
     }
 
     .summary-value {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: #000000;
     }
@@ -176,12 +176,12 @@
 
     .btn-primary {
       width: 100%;
-      height: 52px;
+      height: 50px;
       background-color: #007aff;
       color: #ffffff;
       border: none;
       border-radius: 12px;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -193,14 +193,14 @@
       opacity: 0.85;
     }
 
-    /* Оверлей / Затемнение */
+    /* 3. Шторка оплаты */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.4);
+      background-color: rgba(0, 0, 0, 0.45);
       display: none;
       opacity: 0;
       transition: opacity 0.25s ease;
@@ -212,7 +212,6 @@
       opacity: 1;
     }
 
-    /* Шторка оплаты */
     .payment-sheet {
       position: fixed;
       bottom: 0;
@@ -221,7 +220,7 @@
       background-color: #ffffff;
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      padding: 12px 20px calc(env(safe-area-inset-bottom, 16px) + 20px) 20px;
+      padding: 12px 16px calc(env(safe-area-inset-bottom, 16px) + 16px) 16px;
       transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
       z-index: 101;
@@ -242,7 +241,7 @@
 
     .sheet-close {
       position: absolute;
-      top: 16px;
+      top: 14px;
       right: 16px;
       width: 28px;
       height: 28px;
@@ -253,10 +252,10 @@
     }
 
     .sheet-close svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       stroke: #8e8e93;
-      stroke-width: 2;
+      stroke-width: 2.2;
     }
 
     .sheet-row {
@@ -264,10 +263,6 @@
       justify-content: space-between;
       align-items: flex-start;
       padding: 12px 0;
-    }
-
-    .sheet-row + .sheet-row {
-      border-top: 1px solid #f2f2f7;
     }
 
     .row-label {
@@ -281,8 +276,17 @@
       text-align: right;
     }
 
+    /* Точная подгонка шрифта заголовка билета */
+    .ticket-title-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #000000;
+      line-height: 1.25;
+      letter-spacing: -0.2px;
+    }
+
     .row-value-bold {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: #000000;
     }
@@ -291,13 +295,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 0;
+      padding: 12px 0;
       border-top: 1px solid #f2f2f7;
       border-bottom: 1px solid #f2f2f7;
+      margin: 4px 0;
     }
 
     .bonus-text {
-      font-size: 17px;
+      font-size: 16px;
       color: #34c759;
       font-weight: 500;
     }
@@ -308,12 +313,11 @@
       margin-top: 2px;
     }
 
-    /* Переключатель (Toggle) */
     .switch {
       position: relative;
       display: inline-block;
-      width: 51px;
-      height: 31px;
+      width: 48px;
+      height: 28px;
     }
 
     .switch input {
@@ -328,14 +332,14 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: #e9e9ea;
       transition: .3s;
-      border-radius: 31px;
+      border-radius: 28px;
     }
 
     .slider:before {
       position: absolute;
       content: "";
-      height: 27px;
-      width: 27px;
+      height: 24px;
+      width: 24px;
       left: 2px;
       bottom: 2px;
       background-color: white;
@@ -353,18 +357,18 @@
     }
 
     .payment-method {
-      margin-top: 16px;
+      margin-top: 14px;
     }
 
     .payment-method-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .payment-method-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 600;
       color: #000000;
     }
@@ -381,12 +385,12 @@
       background-color: #f9f9fb;
       padding: 12px;
       border-radius: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .card-icon {
-      width: 44px;
-      height: 28px;
+      width: 42px;
+      height: 26px;
       background-color: #f1a100;
       border-radius: 4px;
       margin-right: 12px;
@@ -415,15 +419,56 @@
 
     .card-balance {
       font-size: 16px;
-      font-weight: 500;
+      font-weight: 600;
       color: #000000;
       text-align: right;
+    }
+
+    /* 4. Экран Успешного платежа */
+    #success-screen {
+      background-color: #ffffff;
+      color: #000000;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background-color: #34c759;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .success-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: #ffffff;
+      stroke-width: 3;
+      fill: none;
+    }
+
+    .success-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .success-sub {
+      font-size: 16px;
+      color: #8e8e93;
+      margin-bottom: 32px;
     }
   </style>
 </head>
 <body>
 
-  <!-- 1. ЭКРАН СКАНЕРА -->
+  <!-- 1. СКАНЕР -->
   <div id="scanner-screen" class="screen active">
     <div class="scanner-header">
       <div class="scanner-title">Kaspi QR</div>
@@ -435,7 +480,7 @@
     </div>
   </div>
 
-  <!-- 2. ЭКРАН СУММЫ БИЛЕТА -->
+  <!-- 2. ЭКРАН СУММЫ -->
   <div id="ticket-screen" class="screen">
     <div class="app-bar">
       <div class="back-btn" onclick="showScreen('scanner-screen')">
@@ -454,7 +499,7 @@
     </div>
   </div>
 
-  <!-- 3. ШТОРКА ОПЛАТЫ (MODAL) -->
+  <!-- 3. ШТОРКА ОПЛАТЫ -->
   <div id="modal-overlay" class="modal-overlay" onclick="closePaymentSheet()"></div>
   
   <div id="payment-sheet" class="payment-sheet">
@@ -463,9 +508,9 @@
       <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </div>
 
-    <div class="sheet-row" style="margin-top: 8px;">
+    <div class="sheet-row" style="margin-top: 4px;">
       <span class="row-label">Платеж</span>
-      <span class="row-value" style="font-weight: 500;">Билет Avtobys. Оплата<br>проезда</span>
+      <span class="row-value ticket-title-text">Билет Avtobys. Оплата<br>проезда</span>
     </div>
 
     <div class="sheet-row">
@@ -485,7 +530,7 @@
     </div>
 
     <div class="sheet-row">
-      <span class="row-label" style="font-size: 17px; font-weight: 600; color: #000;">К оплате</span>
+      <span class="row-label" style="font-size: 16px; font-weight: 600; color: #000;">К оплате</span>
       <span class="row-value-bold" id="sheet-final-price">80 ₸</span>
     </div>
 
@@ -497,7 +542,6 @@
 
       <div class="card-box">
         <div class="card-icon">
-          <!-- Сюда вставишь свою картинку карты -->
           <img id="card-img" src="gold.png" alt="Kaspi Gold" onerror="this.style.display='none'">
         </div>
         <div class="card-info">
@@ -507,21 +551,31 @@
       </div>
     </div>
 
-    <button class="btn-primary" id="sheet-pay-btn" onclick="alert('Оплачено!')">Оплатить 80 ₸</button>
+    <!-- Кнопка с прямым переходом к успешному экрану -->
+    <button class="btn-primary" id="sheet-pay-btn" onclick="submitPayment()">Оплатить 80 ₸</button>
+  </div>
+
+  <!-- 4. ЭКРАН "ПЛАТЕЖ ПРИНЯТ" -->
+  <div id="success-screen" class="screen">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="success-title">Платеж принят</div>
+    <div class="success-sub" id="success-amount">80,00 ₸</div>
+    <button class="btn-primary" style="width: 200px;" onclick="location.reload()">Готово</button>
   </div>
 
   <script>
     /* ========================================================
-       НАСТРОЙКИ СУММЫ И БАЛАНСА (МЕНЯЙ ЗДЕСЬ)
+       НАСТРОЙКИ СУММЫ И БАЛАНСА
     ======================================================== */
     const CONFIG = {
-      price: 80,                 // Сумма проезда (число)
-      bonuses: "3,18 ₸",          // Отображаемые бонусы
+      price: 80,                 // Сумма проезда
+      bonuses: "3,18 ₸",          // Бонусы
       balance: "15 457,34 ₸",     // Баланс карты
       cardImage: "gold.png"       // Путь к файлу картинки карты
     };
 
-    // Автоматическая подстановка значений в интерфейс
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("display-ticket-price").innerText = `${CONFIG.price},00 ₸`;
       document.getElementById("sheet-price").innerText = `${CONFIG.price} ₸`;
@@ -529,6 +583,7 @@
       document.getElementById("sheet-pay-btn").innerText = `Оплатить ${CONFIG.price} ₸`;
       document.getElementById("sheet-bonuses").innerText = `Накоплено ${CONFIG.bonuses}`;
       document.getElementById("sheet-balance").innerText = CONFIG.balance;
+      document.getElementById("success-amount").innerText = `${CONFIG.price},00 ₸`;
       
       const cardImg = document.getElementById("card-img");
       if (cardImg && CONFIG.cardImage) {
@@ -538,13 +593,11 @@
       startCamera();
     });
 
-    // Навигация по экранам
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
     }
 
-    // Запуск камеры (с поддержкой Median WebView)
     function startCamera() {
       if (window.median && window.median.permissions) {
         window.median.permissions.request({
@@ -563,18 +616,15 @@
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then(stream => {
           video.srcObject = stream;
-          // Имитация сканирования: переход к оплате через 2.5 секунды
           setTimeout(() => {
             showScreen('ticket-screen');
           }, 2500);
         })
         .catch(err => {
-          // Если камера не запустилась, можно кликнуть по экрану для имитации скана
           document.getElementById('scanner-screen').onclick = () => showScreen('ticket-screen');
         });
     }
 
-    // Управление шторкой оплаты
     function openPaymentSheet() {
       document.getElementById('modal-overlay').classList.add('active');
       document.getElementById('payment-sheet').classList.add('active');
@@ -583,6 +633,12 @@
     function closePaymentSheet() {
       document.getElementById('modal-overlay').classList.remove('active');
       document.getElementById('payment-sheet').classList.remove('active');
+    }
+
+    // Переход без всплывающих окон
+    function submitPayment() {
+      closePaymentSheet();
+      showScreen('success-screen');
     }
   </script>
 </body>
