@@ -34,7 +34,34 @@
       position: relative;
     }
 
-    /* ЭКРАН 1: СКАНИРОВАНИЕ QR */
+    /* ИНДИКАТОР ЗАГРУЗКИ */
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 700;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #fff;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 1. ЭКРАН СКАНЕРА QR */
     #scanner-screen {
       display: none;
       position: fixed;
@@ -76,7 +103,7 @@
 
     .scanner-prompt {
       position: absolute;
-      top: 20%; left: 0; right: 0;
+      top: 18%; left: 0; right: 0;
       text-align: center;
       color: #fff;
       font-size: 20px;
@@ -89,7 +116,8 @@
     .scanner-overlay-box {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       pointer-events: none;
     }
 
@@ -98,39 +126,88 @@
       border: 3px solid #f25222;
       border-radius: 20px;
       box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.55);
+      position: relative;
     }
 
-    /* ЭКРАН 2: ЭКРАН С КНОПКОЙ «ПРОДОЛЖИТЬ» (ПОСЛЕ СКАНИРОВАНИЯ) */
+    /* ФОНАРИК ПОД РАМКОЙ */
+    .flashlight-btn {
+      margin-top: 30px;
+      width: 48px; height: 48px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .flashlight-btn svg {
+      width: 24px; height: 24px; fill: #ffffff;
+    }
+
+    /* ШТОРКА «ОФОРМИТЬ ОНЛАЙН» В СКАНЕРЕ */
+    .scanner-bottom-sheet {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: #ffffff;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 16px;
+      z-index: 520;
+    }
+
+    .scanner-sheet-handle {
+      width: 36px; height: 4px; background: #e0e0e0;
+      border-radius: 2px; margin: 0 auto 12px auto;
+    }
+
+    .scanner-sheet-title {
+      font-size: 17px; font-weight: 600; color: #000; margin-bottom: 12px;
+    }
+
+    .installment-banner {
+      display: flex; align-items: center; gap: 10px;
+      background: #f8f8f8; padding: 10px 12px; border-radius: 10px;
+    }
+
+    .installment-badge {
+      background: #ffcc00; color: #000; font-size: 11px; font-weight: 700;
+      padding: 3px 6px; border-radius: 4px;
+    }
+
+    .installment-text {
+      font-size: 14px; color: #333; font-weight: 500; flex: 1;
+    }
+
+    .arrow-right-small {
+      width: 14px; height: 14px; stroke: #8e8e93; stroke-width: 2; fill: none;
+    }
+
+    /* 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН С ТЕКСТОМ «ИТОГО» */
     #continue-screen {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: #ffffff;
+      background: #f4f4f6;
       z-index: 400;
       flex-direction: column;
-      padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
+      padding: calc(16px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom)) 18px;
     }
 
     .continue-header {
       display: flex;
       align-items: center;
       gap: 16px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .back-arrow {
-      width: 20px;
-      height: 20px;
-      stroke: #000;
-      stroke-width: 2.2;
-      fill: none;
+      width: 22px; height: 22px;
+      stroke: #000; stroke-width: 2.2; fill: none;
       cursor: pointer;
     }
 
     .continue-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #000;
+      font-size: 18px; font-weight: 600; color: #000;
     }
 
     .continue-row {
@@ -142,20 +219,14 @@
       margin-top: 10px;
     }
 
-    .continue-btn {
-      margin-top: auto;
+    /* 3. ГЛАВНЫЙ ЭКРАН: УСПЕШНАЯ ОПЛАТА («Платеж принят.») */
+    #main-content {
+      display: none;
       width: 100%;
-      background: #0066ff;
-      color: #ffffff;
-      text-align: center;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
+      flex-direction: column;
+      align-items: center;
     }
 
-    /* ЭКРАН 3: УСПЕШНАЯ ОПЛАТА («Платеж принят») */
     .static-header {
       width: 100%;
       display: flex;
@@ -167,84 +238,52 @@
     }
 
     .main-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: #000000;
-      margin-bottom: 25px;
-      letter-spacing: -0.2px;
+      font-size: 17px; font-weight: 600; color: #000000;
+      margin-bottom: 25px; letter-spacing: -0.2px;
     }
 
     .main-success-circle {
-      width: 65px;
-      height: 65px;
-      background-color: #00b018;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 65px; height: 65px;
+      background-color: #00b018; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
     }
 
     .main-success-circle svg {
-      width: 38px;
-      height: 38px;
-      stroke: #ffffff;
-      stroke-width: 3;
-      fill: none;
+      width: 38px; height: 38px;
+      stroke: #ffffff; stroke-width: 3; fill: none;
     }
 
     .main-screen {
-      width: 100%;
-      max-width: 420px;
+      width: 100%; max-width: 420px;
       padding: 10px 18px calc(80px + env(safe-area-inset-bottom)) 18px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
     }
 
     .payment-status {
-      font-size: 22px;
-      font-weight: 600;
-      color: #000;
-      margin-bottom: 8px;
-      margin-top: 5px;
+      font-size: 22px; font-weight: 600; color: #000;
+      margin-bottom: 8px; margin-top: 5px;
     }
 
     .payment-amount {
-      font-size: 36px;
-      font-weight: 700;
-      color: #000;
-      margin-bottom: 30px;
+      font-size: 36px; font-weight: 700; color: #000; margin-bottom: 30px;
     }
 
     .ticket-btn {
-      width: 100%;
-      background: #f8f8f8;
-      border-radius: 14px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      margin-bottom: 20px;
-      border: 1px solid #eaeaea;
+      width: 100%; background: #f8f8f8; border-radius: 14px;
+      padding: 14px 16px; display: flex; align-items: center;
+      justify-content: space-between; cursor: pointer;
+      margin-bottom: 20px; border: 1px solid #eaeaea;
     }
 
-    .ticket-btn-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .ticket-btn-left { display: flex; align-items: center; gap: 12px; }
     .ticket-btn-icon { width: 24px; height: 24px; }
     .ticket-btn-title { font-size: 16px; font-weight: 500; color: #000; }
     .ticket-btn-subtitle { font-size: 12px; color: #8e8e93; margin-top: 2px; }
     .arrow-icon { width: 16px; height: 16px; stroke: #8e8e93; stroke-width: 2; fill: none; }
 
     .ads-block {
-      width: 100%;
-      border-top: 1px solid #f0f0f0;
-      padding-top: 15px;
-      margin-bottom: 20px;
+      width: 100%; border-top: 1px solid #f0f0f0;
+      padding-top: 15px; margin-bottom: 20px;
     }
 
     .ads-title { font-size: 16px; font-weight: 600; color: #000; margin-bottom: 12px; }
@@ -253,150 +292,112 @@
     .bottom-btn {
       position: fixed;
       bottom: calc(15px + env(safe-area-inset-bottom));
-      width: calc(100% - 32px);
-      max-width: 388px;
-      background: #0066ff;
-      color: #fff;
-      text-align: center;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,102,255,0.2);
-      z-index: 5;
-      cursor: pointer;
+      width: calc(100% - 32px); max-width: 388px;
+      background: #0066ff; color: #fff; text-align: center;
+      padding: 14px; border-radius: 12px; font-size: 16px;
+      font-weight: 600; box-shadow: 0 4px 12px rgba(0,102,255,0.2);
+      z-index: 5; cursor: pointer;
     }
 
-    /* ФОН ПРИ ВЫЕЗЖАЮЩИХ ШТОРКАХ */
+    /* ФОН ДЛЯ ШТОРКИ */
     .backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.45);
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
+      z-index: 450;
+      opacity: 0; pointer-events: none;
       transition: opacity 0.3s ease;
     }
 
-    .backdrop.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .backdrop.active { opacity: 1; pointer-events: auto; }
 
-    /* ШТОРКА 1: БИЛЕТ (ПОКАЗЫВАЕТСЯ ТОЛЬКО ПО КЛИКУ "ПОКАЗАТЬ БИЛЕТ") */
+    /* 4. ВЫЕЗЖАЮЩАЯ ШТОРКА (БИЛЕТ С QR) */
     .sheet {
       position: fixed;
       left: 0; right: 0; bottom: 0;
       height: calc(77vh + env(safe-area-inset-bottom));
       background: #ffffff;
-      border-top-left-radius: 22px;
-      border-top-right-radius: 22px;
+      border-top-left-radius: 22px; border-top-right-radius: 22px;
       padding: 12px 22px calc(24px + env(safe-area-inset-bottom)) 22px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 101;
-      box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
+      display: flex; flex-direction: column; align-items: center;
+      z-index: 451; box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
       transform: translateY(100%);
       transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    .backdrop.active .sheet {
-      transform: translateY(0);
-    }
+    .backdrop.active .sheet { transform: translateY(0); }
 
     .handle {
-      width: 32px;
-      height: 4px;
-      background-color: #d1d1d6;
-      border-radius: 20px;
-      margin-bottom: 14px;
+      width: 32px; height: 4px; background-color: #d1d1d6;
+      border-radius: 20px; margin-bottom: 14px;
     }
 
     .sheet-header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 25px;
+      width: 100%; display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 25px;
     }
 
     .sheet-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: #000000;
-      line-height: 1.25;
-      letter-spacing: -0.2px;
+      font-size: 17px; font-weight: 600; color: #000000;
+      line-height: 1.25; letter-spacing: -0.2px;
     }
 
     .close-icon {
-      width: 22px;
-      height: 22px;
-      stroke: #000000;
-      stroke-width: 2.2;
-      cursor: pointer;
-      margin-top: 2px;
+      width: 22px; height: 22px; stroke: #000000;
+      stroke-width: 2.2; cursor: pointer; margin-top: 2px;
     }
 
     .qr-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 12px;
-      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center;
+      margin-bottom: 12px; cursor: pointer;
     }
 
     .qr-image {
-      width: 190px;
-      max-width: 240px;
-      height: auto;
-      aspect-ratio: 1 / 1;
-      display: block;
-      margin: 0 auto;
+      width: 190px; max-width: 240px; height: auto;
+      aspect-ratio: 1 / 1; display: block; margin: 0 auto;
     }
 
     .qr-subtext {
-      font-size: 16px;
-      color: #8e8e93;
-      margin-top: 35px;
-      margin-bottom: 10px;
+      font-size: 16px; color: #8e8e93; margin-top: 35px; margin-bottom: 10px;
     }
 
-    .info-block { text-align: center; margin-bottom: 40px; color: #000; }
+    .info-block { text-align: center; margin-bottom: 25px; color: #000; }
     .info-code { font-size: 16px; margin-top: 2px; font-weight: 700; }
     .info-date { font-size: 16px; margin-top: 18px; }
     .info-price { font-size: 16px; margin-top: 2px; }
 
+    .installment-box {
+      font-size: 13px; color: #8e8e93; margin-bottom: 16px; text-align: center;
+    }
+
     .action-icon-img { width: 28px; height: 28px; object-fit: contain; }
     .actions-bar {
-      width: 100%; max-width: 260px;
-      margin-top: auto; display: flex; justify-content: space-around;
-      padding-bottom: 4px;
+      width: 100%; max-width: 260px; margin-top: auto;
+      display: flex; justify-content: space-around; padding-bottom: 4px;
     }
     .action-btn { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 
-    /* ШТОРКА 2: ОПЛАТА KASPI */
+    /* 5. ШТОРКА ОПЛАТЫ KASPI */
     .payment-sheet {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       background-color: #ffffff;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
+      border-top-left-radius: 20px; border-top-right-radius: 20px;
       padding: 12px 16px calc(env(safe-area-inset-bottom, 16px) + 16px) 16px;
       transform: translateY(100%);
       transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
-      z-index: 105;
-      color: #000000;
+      z-index: 460; color: #000000;
     }
 
-    .payment-sheet.active {
-      transform: translateY(0);
+    .payment-sheet.active { transform: translateY(0); }
+
+    .sheet-top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px;
     }
 
     .sheet-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      display: flex; justify-content: space-between; align-items: flex-start;
       padding: 12px 0;
     }
 
@@ -405,12 +406,8 @@
     .row-value-bold { font-size: 17px; font-weight: 700; color: #000000; }
 
     .bonus-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      border-top: 1px solid #f2f2f7;
-      border-bottom: 1px solid #f2f2f7;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-top: 1px solid #f2f2f7; border-bottom: 1px solid #f2f2f7;
       margin: 4px 0;
     }
 
@@ -431,24 +428,23 @@
     input:checked + .slider { background-color: #34c759; }
     input:checked + .slider:before { transform: translateX(20px); }
 
-    /* БЛОК КАРТЫ И КАСПИ ГОЛД */
+    /* СТРОКА СПОСОБ ОПЛАТЫ */
+    .payment-method-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 14px; margin-bottom: 6px;
+    }
+    .method-title { font-size: 15px; font-weight: 600; color: #000; }
+    .hide-amount-link { font-size: 14px; color: #007aff; cursor: pointer; }
+
     .card-box {
-      display: flex;
-      align-items: center;
-      background-color: #f9f9fb;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 8px;
-      margin-top: 10px;
+      display: flex; align-items: center; background-color: #f9f9fb;
+      padding: 12px; border-radius: 12px; margin-bottom: 16px;
     }
 
     .card-icon {
-      width: 42px; height: 26px;
-      background-color: #f1a100;
-      border-radius: 4px;
-      margin-right: 12px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; flex-shrink: 0;
+      width: 42px; height: 26px; background-color: #f1a100;
+      border-radius: 4px; margin-right: 12px; display: flex;
+      align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
     }
 
     .card-icon img { width: 100%; height: 100%; object-fit: cover; }
@@ -456,24 +452,10 @@
     .card-name { font-size: 16px; font-weight: 500; color: #000000; }
     .card-balance { font-size: 16px; font-weight: 600; color: #000000; text-align: right; }
 
-    /* БЛОК РАССРОЧКИ */
-    .installment-box {
-      font-size: 13px;
-      color: #8e8e93;
-      margin-bottom: 16px;
-      padding-left: 2px;
-    }
-
     .btn-pay {
-      width: 100%;
-      height: 50px;
-      background-color: #007aff;
-      color: #ffffff;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
+      width: 100%; height: 50px; background-color: #007aff;
+      color: #ffffff; border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 600; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
 
@@ -484,6 +466,12 @@
   </style>
 </head>
 <body>
+
+  <!-- ИНДИКАТОР ЗАГРУЗКИ -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <div>Обработка...</div>
+  </div>
 
   <!-- 1. ЭКРАН СКАНЕРА KASPI QR -->
   <div id="scanner-screen">
@@ -499,10 +487,26 @@
 
     <div class="scanner-overlay-box">
       <div class="scanner-frame"></div>
+      <div class="flashlight-btn">
+        <svg viewBox="0 0 24 24">
+          <path d="M7 2h10l-2 5h2a1 1 0 0 1 .8 1.6l-8 11A1 1 0 0 1 8 18h2l-3 4V2z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- НИЖНЯЯ ШТОРКА «ОФОРМИТЬ ОНЛАЙН» -->
+    <div class="scanner-bottom-sheet">
+      <div class="scanner-sheet-handle"></div>
+      <div class="scanner-sheet-title">Оформить онлайн</div>
+      <div class="installment-banner">
+        <span class="installment-badge">0-0-24</span>
+        <span class="installment-text">Рассрочка 0-0-24</span>
+        <svg class="arrow-right-small" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </div>
     </div>
   </div>
 
-  <!-- 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН: «ПРОДОЛЖИТЬ» -->
+  <!-- 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН: «ИТОГО» -->
   <div id="continue-screen">
     <div class="continue-header">
       <svg class="back-arrow" viewBox="0 0 24 24" onclick="closeContinueScreen()">
@@ -516,8 +520,6 @@
       <span>Итого</span>
       <span style="font-weight: 600;" id="continue-price">80,00 ₸</span>
     </div>
-
-    <div class="continue-btn" onclick="openPaymentSheetFromContinue()">Продолжить</div>
   </div>
 
   <!-- 3. ГЛАВНЫЙ ЭКРАН: УСПЕШНЫЙ ПЛАТЕЖ («Платеж принят.») -->
@@ -587,6 +589,10 @@
         <div class="info-price" id="display-sheet-info-price">Сумма 80 ₸</div>
       </div>
 
+      <div class="installment-box">
+        В рассрочку 0-0-3 • 0 ₸ x 3 мес
+      </div>
+
       <div class="actions-bar">
         <div class="action-btn">
           <img src="Receipt.png" class="action-icon-img" alt="Квитанция">
@@ -603,10 +609,17 @@
     </div>
   </div>
 
-  <!-- 5. ШТОРКА ОПЛАТЫ KASPI (ПОСЛЕ КЛИКА НА «ПРОДОЛЖИТЬ») -->
+  <!-- 5. ШТОРКА ОПЛАТЫ KASPI -->
   <div id="payment-overlay" class="backdrop" onclick="closePaymentSheet()">
     <div id="payment-sheet" class="payment-sheet" onclick="event.stopPropagation()">
-      <div class="handle" style="margin: 0 auto 12px auto;"></div>
+      
+      <div class="sheet-top-bar">
+        <div class="handle" style="margin: 0 auto;"></div>
+        <svg class="close-icon" viewBox="0 0 24 24" fill="none" onclick="closePaymentSheet()">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </div>
       
       <div class="sheet-row">
         <span class="row-label">Платеж</span>
@@ -624,7 +637,7 @@
           <div class="bonus-subtext" id="sheet-bonuses">Накоплено 3,18 ₸</div>
         </div>
         <label class="switch">
-          <input type="checkbox" checked>
+          <input type="checkbox">
           <span class="slider"></span>
         </label>
       </div>
@@ -634,7 +647,13 @@
         <span class="row-value-bold" id="sheet-final-price">80 ₸</span>
       </div>
 
-      <!-- БЛОК С KASPI GOLD И КАРТИНКОЙ GOLD.PNG -->
+      <!-- СТРОКА СПОСОБ ОПЛАТЫ / СКРЫТЬ СУММУ -->
+      <div class="payment-method-header">
+        <span class="method-title">Способ оплаты</span>
+        <span class="hide-amount-link">Скрыть сумму</span>
+      </div>
+
+      <!-- БЛОК С KASPI GOLD -->
       <div class="card-box">
         <div class="card-icon">
           <img id="card-img" src="gold.png" alt="Kaspi Gold" onerror="this.style.display='none'">
@@ -643,11 +662,6 @@
           <div class="card-name">Kaspi Gold</div>
         </div>
         <div class="card-balance" id="sheet-balance">15 457,34 ₸</div>
-      </div>
-
-      <!-- БЛОК РАССРОЧКИ -->
-      <div class="installment-box">
-        В рассрочку 0-0-3 • 0 ₸ x 3 мес
       </div>
 
       <button class="btn-pay" id="sheet-pay-btn" onclick="confirmPayment()">Оплатить 80 ₸</button>
@@ -679,13 +693,10 @@
   </div>
 
   <script>
-    /* ========================================================
-       ГЛОБАЛЬНЫЕ НАСТРОЙКИ
-    ======================================================== */
     const CONFIG = {
       price: 80,
       bonuses: "3,18 ₸",
-      goldBalance: "15 457,34 ₸", // Баланс Kaspi Gold
+      goldBalance: "15 457,34 ₸",
       cardImage: "gold.png"
     };
 
@@ -705,12 +716,12 @@
       if (savedBalance) CONFIG.goldBalance = savedBalance;
 
       updateUI();
+      openScanner();
     });
 
     function updateUI() {
       const priceVal = CONFIG.price;
       
-      // Обновляем стоимости во всех элементах экрана
       document.getElementById("continue-price").innerText = `${priceVal},00 ₸`;
       document.getElementById("display-main-price").innerText = `${priceVal} ₸`;
       document.getElementById("display-sheet-info-price").innerText = `Сумма ${priceVal} ₸`;
@@ -722,19 +733,78 @@
       document.getElementById("sheet-bonuses").innerText = `Накоплено ${CONFIG.bonuses}`;
     }
 
-    /* 1. ПОСЛЕ СКАНЕРА ПОКАЗЫВАЕМ ЭКРАН «ПРОДОЛЖИТЬ» */
-    function showContinueScreen() {
+    /* СКАНЕР */
+    function openScanner() {
+      document.getElementById("main-content").style.display = "none";
+      document.getElementById("continue-screen").style.display = "none";
+      
+      const scannerScreen = document.getElementById("scanner-screen");
+      const video = document.getElementById("webcam");
+      scannerScreen.style.display = "block";
+      isScanning = true;
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+          videoStream = stream;
+          video.srcObject = stream;
+          video.setAttribute("playsinline", true);
+          video.play();
+          requestAnimationFrame(scanTick);
+        })
+        .catch(err => {
+          alert("Ошибка доступа к камере: " + err);
+          closeScanner();
+        });
+    }
+
+    function scanTick() {
+      if (!isScanning) return;
+
+      const video = document.getElementById("webcam");
+      const canvas = document.getElementById("qr-canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        if (code) {
+          isScanning = false;
+          closeScanner();
+          
+          showLoading();
+          setTimeout(() => {
+            hideLoading();
+            showContinueScreenAndPayment();
+          }, 400);
+          return;
+        }
+      }
+      requestAnimationFrame(scanTick);
+    }
+
+    function closeScanner() {
+      isScanning = false;
+      document.getElementById("scanner-screen").style.display = "none";
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+      }
+    }
+
+    /* ПРОМЕЖУТОЧНЫЙ ЭКРАН И ШТОРКА ОПЛАТЫ */
+    function showContinueScreenAndPayment() {
       document.getElementById("continue-screen").style.display = "flex";
+      openPaymentSheet();
     }
 
     function closeContinueScreen() {
       document.getElementById("continue-screen").style.display = "none";
-    }
-
-    /* 2. НАЖАЛИ «ПРОДОЛЖИТЬ» -> ОТКРЫВАЕТСЯ ШТОРКА ОПЛАТЫ KASPI */
-    function openPaymentSheetFromContinue() {
-      closeContinueScreen();
-      openPaymentSheet();
+      openScanner();
     }
 
     function openPaymentSheet() {
@@ -747,16 +817,28 @@
       document.getElementById("payment-sheet").classList.remove("active");
     }
 
-    /* 3. НАЖАЛИ «ОПЛАТИТЬ» -> ПЕРЕХОДИМ К ЭКРАНУ «Платеж принят» */
+    /* ПОДТВЕРЖДЕНИЕ ОПЛАТЫ */
     function confirmPayment() {
       closePaymentSheet();
+      showLoading();
       
-      const newTime = autoSetCurrentTime();
-      document.getElementById("date-time").innerText = newTime;
-      localStorage.setItem("bus_date", newTime);
+      setTimeout(() => {
+        hideLoading();
+        
+        // Скрываем промежуточный экран «Итого»
+        document.getElementById("continue-screen").style.display = "none";
+        
+        // Обновляем время
+        const newTime = autoSetCurrentTime();
+        document.getElementById("date-time").innerText = newTime;
+        localStorage.setItem("bus_date", newTime);
+        
+        // Показываем главный экран успешной оплаты
+        document.getElementById("main-content").style.display = "flex";
+      }, 600);
     }
 
-    /* 4. БИЛЕТ ОТКРЫВАЕТСЯ ТОЛЬКО ВРУЧНУЮ ПО КЛИКУ НА «ПОКАЗАТЬ БИЛЕТ» */
+    /* БИЛЕТ */
     function openTicket() {
       document.getElementById("backdrop").classList.add("active");
     }
@@ -765,7 +847,7 @@
       document.getElementById("backdrop").classList.remove("active");
     }
 
-    /* ОКНО НАСТРОЕК */
+    /* НАСТРОЙКИ */
     function openSettings() {
       document.getElementById("input-ticket-price").value = CONFIG.price;
       document.getElementById("input-gold-balance").value = CONFIG.goldBalance;
@@ -810,59 +892,12 @@
       return formatted;
     }
 
-    /* СКАНЕР */
-    function openScanner() {
-      const scannerScreen = document.getElementById("scanner-screen");
-      const video = document.getElementById("webcam");
-      scannerScreen.style.display = "block";
-      isScanning = true;
-
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-          videoStream = stream;
-          video.srcObject = stream;
-          video.setAttribute("playsinline", true);
-          video.play();
-          requestAnimationFrame(scanTick);
-        })
-        .catch(err => {
-          alert("Ошибка доступа к камере: " + err);
-          closeScanner();
-        });
+    function showLoading() {
+      document.getElementById("loading-overlay").style.display = "flex";
     }
 
-    function scanTick() {
-      if (!isScanning) return;
-
-      const video = document.getElementById("webcam");
-      const canvas = document.getElementById("qr-canvas");
-      const ctx = canvas.getContext("2d");
-
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.height = video.videoHeight;
-        canvas.width = video.videoWidth;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-        if (code) {
-          isScanning = false;
-          closeScanner();
-          showContinueScreen(); // Переход на экран «Продолжить»
-          return;
-        }
-      }
-      requestAnimationFrame(scanTick);
-    }
-
-    function closeScanner() {
-      isScanning = false;
-      document.getElementById("scanner-screen").style.display = "none";
-      if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-        videoStream = null;
-      }
+    function hideLoading() {
+      document.getElementById("loading-overlay").style.display = "none";
     }
   </script>
 </body>
