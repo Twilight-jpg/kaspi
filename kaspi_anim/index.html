@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Avtobys Payment Replica</title>
   
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -15,7 +13,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Calibri, sans-serif !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, Helvetica, Arial, sans-serif !important;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
@@ -36,18 +34,128 @@
       position: relative;
     }
 
-    /* ПЛАВНЫЕ ПЕРЕХОДЫ И АНИМАЦИИ */
-    .fade-screen {
-      opacity: 1;
-      transition: opacity 0.35s ease-in-out;
+    /* ЭКРАН 1: СКАНИРОВАНИЕ QR */
+    #scanner-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #000;
+      z-index: 500;
+      overflow: hidden;
     }
 
-    .fade-screen.hidden {
-      opacity: 0;
+    .scanner-header {
+      position: absolute;
+      top: calc(12px + env(safe-area-inset-top));
+      left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 510;
+      color: #fff;
+    }
+
+    .scanner-title {
+      font-size: 18px;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
+      margin-left: 24px;
+    }
+
+    .scanner-close {
+      font-size: 20px;
+      cursor: pointer;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .scanner-prompt {
+      position: absolute;
+      top: 20%; left: 0; right: 0;
+      text-align: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 600;
+      z-index: 510;
+    }
+
+    #webcam { width: 100%; height: 100%; object-fit: cover; }
+
+    .scanner-overlay-box {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
       pointer-events: none;
     }
 
-    /* ФИКСИРОВАННАЯ ШАПКА */
+    .scanner-frame {
+      width: 250px; height: 250px;
+      border: 3px solid #f25222;
+      border-radius: 20px;
+      box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.55);
+    }
+
+    /* ЭКРАН 2: ЭКРАН С КНОПКОЙ «ПРОДОЛЖИТЬ» (ПОСЛЕ СКАНИРОВАНИЯ) */
+    #continue-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #ffffff;
+      z-index: 400;
+      flex-direction: column;
+      padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
+    }
+
+    .continue-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .back-arrow {
+      width: 20px;
+      height: 20px;
+      stroke: #000;
+      stroke-width: 2.2;
+      fill: none;
+      cursor: pointer;
+    }
+
+    .continue-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .continue-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 17px;
+      color: #000;
+      margin-top: 10px;
+    }
+
+    .continue-btn {
+      margin-top: auto;
+      width: 100%;
+      background: #0066ff;
+      color: #ffffff;
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ЭКРАН 3: УСПЕШНАЯ ОПЛАТА («Платеж принят») */
     .static-header {
       width: 100%;
       display: flex;
@@ -56,7 +164,6 @@
       padding-top: 35px;
       padding-bottom: 15px;
       background: #ffffff;
-      z-index: 1;
     }
 
     .main-title {
@@ -85,7 +192,6 @@
       fill: none;
     }
 
-    /* ОСНОВНОЙ КОНТЕНТ */
     .main-screen {
       width: 100%;
       max-width: 420px;
@@ -110,7 +216,6 @@
       margin-bottom: 30px;
     }
 
-    /* КНОПКА ПОКАЗАТЬ БИЛЕТ */
     .ticket-btn {
       width: 100%;
       background: #f8f8f8;
@@ -135,7 +240,6 @@
     .ticket-btn-subtitle { font-size: 12px; color: #8e8e93; margin-top: 2px; }
     .arrow-icon { width: 16px; height: 16px; stroke: #8e8e93; stroke-width: 2; fill: none; }
 
-    /* БЛОК "ВАС МОГУТ ЗАИНТЕРЕСОВАТЬ" */
     .ads-block {
       width: 100%;
       border-top: 1px solid #f0f0f0;
@@ -146,7 +250,6 @@
     .ads-title { font-size: 16px; font-weight: 600; color: #000; margin-bottom: 12px; }
     .ads-image { width: 100%; border-radius: 8px; display: block; }
 
-    /* НИЖНЯЯ КНОПКА */
     .bottom-btn {
       position: fixed;
       bottom: calc(15px + env(safe-area-inset-bottom));
@@ -164,7 +267,7 @@
       cursor: pointer;
     }
 
-    /* ФОН ПРИ ОТКРЫТОМ БИЛЕТЕ */
+    /* ФОН ПРИ ВЫЕЗЖАЮЩИХ ШТОРКАХ */
     .backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -180,7 +283,7 @@
       pointer-events: auto;
     }
 
-    /* ШТОРКА БИЛЕТА */
+    /* ШТОРКА 1: БИЛЕТ (ПОКАЗЫВАЕТСЯ ТОЛЬКО ПО КЛИКУ "ПОКАЗАТЬ БИЛЕТ") */
     .sheet {
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -260,8 +363,8 @@
     }
 
     .info-block { text-align: center; margin-bottom: 40px; color: #000; }
-    .info-code { font-size: 16px; margin-top: 2px; font-weight: 700; outline: none; }
-    .info-date { font-size: 16px; margin-top: 18px; outline: none; }
+    .info-code { font-size: 16px; margin-top: 2px; font-weight: 700; }
+    .info-date { font-size: 16px; margin-top: 18px; }
     .info-price { font-size: 16px; margin-top: 2px; }
 
     .action-icon-img { width: 28px; height: 28px; object-fit: contain; }
@@ -272,7 +375,7 @@
     }
     .action-btn { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 
-    /* ШТОРКА ОПЛАТЫ KASPI */
+    /* ШТОРКА 2: ОПЛАТА KASPI */
     .payment-sheet {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -328,13 +431,14 @@
     input:checked + .slider { background-color: #34c759; }
     input:checked + .slider:before { transform: translateX(20px); }
 
+    /* БЛОК КАРТЫ И КАСПИ ГОЛД */
     .card-box {
       display: flex;
       align-items: center;
       background-color: #f9f9fb;
       padding: 12px;
       border-radius: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
       margin-top: 10px;
     }
 
@@ -352,6 +456,14 @@
     .card-name { font-size: 16px; font-weight: 500; color: #000000; }
     .card-balance { font-size: 16px; font-weight: 600; color: #000000; text-align: right; }
 
+    /* БЛОК РАССРОЧКИ (ВОЗВРАЩЕНО) */
+    .installment-box {
+      font-size: 13px;
+      color: #8e8e93;
+      margin-bottom: 16px;
+      padding-left: 2px;
+    }
+
     .btn-pay {
       width: 100%;
       height: 50px;
@@ -365,73 +477,6 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* ЭКРАН СКАНЕРА KASPI QR */
-    #scanner-screen {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: #000;
-      z-index: 500;
-      overflow: hidden;
-    }
-
-    .scanner-header {
-      position: absolute;
-      top: calc(12px + env(safe-area-inset-top));
-      left: 0; right: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 16px;
-      z-index: 510;
-      color: #fff;
-    }
-
-    .scanner-title {
-      font-size: 18px;
-      font-weight: 600;
-      flex: 1;
-      text-align: center;
-      margin-left: 24px;
-    }
-
-    .scanner-close {
-      font-size: 20px;
-      cursor: pointer;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .scanner-prompt {
-      position: absolute;
-      top: 20%; left: 0; right: 0;
-      text-align: center;
-      color: #fff;
-      font-size: 20px;
-      font-weight: 600;
-      z-index: 510;
-    }
-
-    #webcam { width: 100%; height: 100%; object-fit: cover; }
-
-    .scanner-overlay-box {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex; align-items: center; justify-content: center;
-      pointer-events: none;
-    }
-
-    .scanner-frame {
-      width: 250px; height: 250px;
-      border: 3px solid #f25222;
-      border-radius: 20px;
-      box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.55);
-    }
-
-    /* ОКНО НАСТРОЕК */
     #settings-modal input {
       -webkit-user-select: text !important;
       user-select: text !important;
@@ -457,8 +502,26 @@
     </div>
   </div>
 
-  <!-- 2. ВЕРХНЯЯ ШАПКА И ОСНОВНОЙ ЭКРАН -->
-  <div id="main-content" class="fade-screen">
+  <!-- 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН: «ПРОДОЛЖИТЬ» -->
+  <div id="continue-screen">
+    <div class="continue-header">
+      <svg class="back-arrow" viewBox="0 0 24 24" onclick="closeContinueScreen()">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <div class="continue-title">Билет Avtobys. Оплата проезда</div>
+    </div>
+
+    <div class="continue-row">
+      <span>Итого</span>
+      <span style="font-weight: 600;">80,00 ₸</span>
+    </div>
+
+    <div class="continue-btn" onclick="openPaymentSheetFromContinue()">Продолжить</div>
+  </div>
+
+  <!-- 3. ГЛАВНЫЙ ЭКРАН: УСПЕШНЫЙ ПЛАТЕЖ («Платеж принят.») -->
+  <div id="main-content">
     <div class="static-header">
       <div class="main-title">Билет Avtobys. Оплата проезда</div>
       <div class="main-success-circle">
@@ -472,7 +535,7 @@
       <div class="payment-status">Ваш платеж принят.</div>
       <div class="payment-amount" id="display-main-price">80 ₸</div>
 
-      <!-- КНОПКА ПОКАЗАТЬ БИЛЕТ -->
+      <!-- КНОПКА ПОКАЗАТЬ БИЛЕТ (ТОЛЬКО ТУТ ОТКРЫВАЕТСЯ БИЛЕТ) -->
       <div class="ticket-btn" onclick="openTicket()">
         <div class="ticket-btn-left">
           <svg class="ticket-btn-icon" viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2">
@@ -500,7 +563,7 @@
     </div>
   </div>
 
-  <!-- 3. ВЫЕЗЖАЮЩАЯ ШТОРКА (БИЛЕТ) -->
+  <!-- 4. ВЫЕЗЖАЮЩАЯ ШТОРКА (БИЛЕТ С QR) -->
   <div id="backdrop" class="backdrop" onclick="closeTicket()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="handle"></div>
@@ -540,7 +603,7 @@
     </div>
   </div>
 
-  <!-- 4. ШТОРКА ОПЛАТЫ KASPI -->
+  <!-- 5. ШТОРКА ОПЛАТЫ KASPI (ПОСЛЕ КЛИКА НА «ПРОДОЛЖИТЬ») -->
   <div id="payment-overlay" class="backdrop" onclick="closePaymentSheet()">
     <div id="payment-sheet" class="payment-sheet" onclick="event.stopPropagation()">
       <div class="handle" style="margin: 0 auto 12px auto;"></div>
@@ -561,7 +624,7 @@
           <div class="bonus-subtext" id="sheet-bonuses">Накоплено 3,18 ₸</div>
         </div>
         <label class="switch">
-          <input type="checkbox">
+          <input type="checkbox" checked>
           <span class="slider"></span>
         </label>
       </div>
@@ -571,6 +634,7 @@
         <span class="row-value-bold" id="sheet-final-price">80 ₸</span>
       </div>
 
+      <!-- БЛОК С KASPI GOLD И КАРТИНКОЙ GOLD.PNG -->
       <div class="card-box">
         <div class="card-icon">
           <img id="card-img" src="gold.png" alt="Kaspi Gold" onerror="this.style.display='none'">
@@ -581,17 +645,22 @@
         <div class="card-balance" id="sheet-balance">15 457,34 ₸</div>
       </div>
 
-      <button class="btn-pay" id="sheet-pay-btn" onclick="processPayment()">Оплатить 80 ₸</button>
+      <!-- БЛОК РАССРОЧКИ -->
+      <div class="installment-box">
+        В рассрочку 0-0-3 • 0 ₸ x 3 мес
+      </div>
+
+      <button class="btn-pay" id="sheet-pay-btn" onclick="confirmPayment()">Оплатить 80 ₸</button>
     </div>
   </div>
 
-  <!-- 5. ОКНО НАСТРОЕК (ПО КЛИКУ НА QR) -->
+  <!-- 6. ОКНО НАСТРОЕК (МЕНЯЕТ БАЛАНС KASPI GOLD, НОМЕР И ДАТУ) -->
   <div id="settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: #fff; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; color: #000;">
       <h3 style="margin-bottom: 15px; font-size: 16px; text-align: center;">Редактировать данные</h3>
       
-      <label style="font-size: 12px; color: #666;">Сумма проезда (₸):</label>
-      <input type="number" id="input-price" style="width: 100%; padding: 10px; margin: 4px 0 12px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
+      <label style="font-size: 12px; color: #666;">Баланс Kaspi Gold (₸):</label>
+      <input type="text" id="input-gold-balance" style="width: 100%; padding: 10px; margin: 4px 0 12px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
 
       <label style="font-size: 12px; color: #666;">Код автобуса / госномер:</label>
       <input type="text" id="input-bus-code" style="width: 100%; padding: 10px; margin: 4px 0 12px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
@@ -608,13 +677,13 @@
 
   <script>
     /* ========================================================
-       ГЛОБАЛЬНЫЕ НАСТРОЙКИ (МЕНЯЙ СУММУ И ДАННЫЕ ЗДЕСЬ)
+       ГЛОБАЛЬНЫЕ НАСТРОЙКИ
     ======================================================== */
     const CONFIG = {
-      price: 80,                 // Сумма проезда по умолчанию
-      bonuses: "3,18 ₸",          // Бонусы
-      balance: "15 457,34 ₸",     // Баланс карты
-      cardImage: "gold.png"       // Путь к изображению карты
+      price: 80,
+      bonuses: "3,18 ₸",
+      goldBalance: "15 457,34 ₸", // Баланс Kaspi Gold
+      cardImage: "gold.png"
     };
 
     const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
@@ -624,37 +693,35 @@
     document.addEventListener("DOMContentLoaded", () => {
       const savedCode = localStorage.getItem("bus_code");
       const savedDate = localStorage.getItem("bus_date");
-      const savedPrice = localStorage.getItem("bus_price");
+      const savedBalance = localStorage.getItem("gold_balance");
 
       if (savedCode) document.getElementById("bus-code").innerText = savedCode;
       if (savedDate) document.getElementById("date-time").innerText = savedDate;
-      if (savedPrice) CONFIG.price = parseInt(savedPrice);
+      if (savedBalance) CONFIG.goldBalance = savedBalance;
 
-      updatePriceUI();
+      updateUI();
     });
 
-    // Обновление суммы во всех элементах
-    function updatePriceUI() {
-      const p = CONFIG.price;
-      document.getElementById("display-main-price").innerText = `${p} ₸`;
-      document.getElementById("display-sheet-info-price").innerText = `Сумма ${p} ₸`;
-      document.getElementById("sheet-price").innerText = `${p} ₸`;
-      document.getElementById("sheet-final-price").innerText = `${p} ₸`;
-      document.getElementById("sheet-pay-btn").innerText = `Оплатить ${p} ₸`;
+    function updateUI() {
+      document.getElementById("sheet-balance").innerText = CONFIG.goldBalance;
       document.getElementById("sheet-bonuses").innerText = `Накоплено ${CONFIG.bonuses}`;
-      document.getElementById("sheet-balance").innerText = CONFIG.balance;
     }
 
-    /* ШТОРКА БИЛЕТА */
-    function openTicket() {
-      document.getElementById("backdrop").classList.add("active");
+    /* 1. ПОСЛЕ СКАНЕРА ПОКАЗЫВАЕМ ЭКРАН «ПРОДОЛЖИТЬ» */
+    function showContinueScreen() {
+      document.getElementById("continue-screen").style.display = "flex";
     }
 
-    function closeTicket() {
-      document.getElementById("backdrop").classList.remove("active");
+    function closeContinueScreen() {
+      document.getElementById("continue-screen").style.display = "none";
     }
 
-    /* ШТОРКА ОПЛАТЫ KASPI */
+    /* 2. НАЖАЛИ «ПРОДОЛЖИТЬ» -> ОТКРЫВАЕТСЯ ШТОРКА ОПЛАТЫ KASPI */
+    function openPaymentSheetFromContinue() {
+      closeContinueScreen();
+      openPaymentSheet();
+    }
+
     function openPaymentSheet() {
       document.getElementById("payment-overlay").classList.add("active");
       document.getElementById("payment-sheet").classList.add("active");
@@ -665,45 +732,46 @@
       document.getElementById("payment-sheet").classList.remove("active");
     }
 
-    /* ПЛАВНЫЙ ПЕРЕХОД ПОСЛЕ ОПЛАТЫ */
-    function processPayment() {
+    /* 3. НАЖАЛИ «ОПЛАТИТЬ» -> ПЕРЕХОДИМ К ЭКРАНУ «Платеж принят» (БЕЗ ОТКРЫТИЯ БИЛЕТА) */
+    function confirmPayment() {
       closePaymentSheet();
       
       const newTime = autoSetCurrentTime();
       document.getElementById("date-time").innerText = newTime;
       localStorage.setItem("bus_date", newTime);
-
-      const mainContent = document.getElementById("main-content");
-      mainContent.classList.add("hidden");
-
-      setTimeout(() => {
-        mainContent.classList.remove("hidden");
-        openTicket();
-      }, 350);
     }
 
-    /* РЕДАКТИРОВАНИЕ ДАННЫХ */
+    /* 4. БИЛЕТ ОТКРЫВАЕТСЯ ТОЛЬКО ВРУЧНУЮ ПО КЛИКУ НА «ПОКАЗАТЬ БИЛЕТ» */
+    function openTicket() {
+      document.getElementById("backdrop").classList.add("active");
+    }
+
+    function closeTicket() {
+      document.getElementById("backdrop").classList.remove("active");
+    }
+
+    /* ОКНО НАСТРОЕК */
     function openSettings() {
-      document.getElementById("input-price").value = CONFIG.price;
+      document.getElementById("input-gold-balance").value = CONFIG.goldBalance;
       document.getElementById("input-bus-code").value = document.getElementById("bus-code").innerText;
       document.getElementById("input-date-time").value = document.getElementById("date-time").innerText;
       document.getElementById("settings-modal").style.display = "flex";
     }
 
     function saveSettings() {
-      const newPrice = parseInt(document.getElementById("input-price").value) || 80;
+      const newBalance = document.getElementById("input-gold-balance").value;
       const newCode = document.getElementById("input-bus-code").value;
       const newDate = document.getElementById("input-date-time").value;
 
-      CONFIG.price = newPrice;
+      CONFIG.goldBalance = newBalance;
       document.getElementById("bus-code").innerText = newCode;
       document.getElementById("date-time").innerText = newDate;
 
-      localStorage.setItem("bus_price", newPrice);
+      localStorage.setItem("gold_balance", newBalance);
       localStorage.setItem("bus_code", newCode);
       localStorage.setItem("bus_date", newDate);
 
-      updatePriceUI();
+      updateUI();
       document.getElementById("settings-modal").style.display = "none";
     }
 
@@ -720,7 +788,7 @@
       return formatted;
     }
 
-    /* ЛОГИКА СКАНЕРА */
+    /* СКАНЕР */
     function openScanner() {
       const scannerScreen = document.getElementById("scanner-screen");
       const video = document.getElementById("webcam");
@@ -759,7 +827,7 @@
         if (code) {
           isScanning = false;
           closeScanner();
-          openPaymentSheet();
+          showContinueScreen(); // Переход на экран «Продолжить»
           return;
         }
       }
