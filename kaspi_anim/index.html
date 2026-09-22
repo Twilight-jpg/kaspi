@@ -769,16 +769,33 @@
         const code = jsQR(imageData.data, imageData.width, imageData.height);
 
         if (code) {
-          isScanning = false;
-          closeScanner();
-          
-          showLoading();
-          setTimeout(() => {
-            hideLoading();
-            showContinueScreenAndPayment();
-          }, 400);
-          return;
-        }
+  isScanning = false;
+  
+  // 1. Получаем сосканированные данные (текст или ссылку)
+  let scannedText = code.data; 
+
+  // Если в QR-коде ссылка, вытаскиваем из неё только сам код/ID (если нужно)
+  // Например, если в QR зашифровано: "https://site.kz/bus/281AW06", берем последнюю часть
+  if (scannedText.includes('/')) {
+    const parts = scannedText.split('/');
+    scannedText = parts[parts.length - 1] || scannedText;
+  }
+
+  // 2. Подставляем сосканированный код в блок с номером автобуса в билете
+  document.getElementById("bus-code").innerText = scannedText;
+  
+  // Сохраняем в localStorage, чтобы сохранялось при перезагрузке
+  localStorage.setItem("bus_code", scannedText);
+
+  closeScanner();
+  
+  showLoading();
+  setTimeout(() => {
+    hideLoading();
+    showContinueScreenAndPayment();
+  }, 400);
+  return;
+}
       }
       requestAnimationFrame(scanTick);
     }
