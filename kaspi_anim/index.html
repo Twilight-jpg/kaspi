@@ -129,7 +129,6 @@
       position: relative;
     }
 
-    /* ФОНАРИК ПОД РАМКОЙ */
     .flashlight-btn {
       margin-top: 30px;
       width: 48px; height: 48px;
@@ -144,7 +143,6 @@
       width: 24px; height: 24px; fill: #ffffff;
     }
 
-    /* ШТОРКА «ОФОРМИТЬ ОНЛАЙН» В СКАНЕРЕ */
     .scanner-bottom-sheet {
       position: absolute;
       bottom: 0; left: 0; right: 0;
@@ -182,7 +180,7 @@
       width: 14px; height: 14px; stroke: #8e8e93; stroke-width: 2; fill: none;
     }
 
-    /* 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН С ТЕКСТОМ «ИТОГО» */
+    /* 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН */
     #continue-screen {
       display: none;
       position: fixed;
@@ -219,7 +217,7 @@
       margin-top: 10px;
     }
 
-    /* 3. ГЛАВНЫЙ ЭКРАН: УСПЕШНАЯ ОПЛАТА («Платеж принят.») */
+    /* 3. ГЛАВНЫЙ ЭКРАН: УСПЕШНАЯ ОПЛАТА */
     #main-content {
       display: none;
       width: 100%;
@@ -428,7 +426,6 @@
     input:checked + .slider { background-color: #34c759; }
     input:checked + .slider:before { transform: translateX(20px); }
 
-    /* СТРОКА СПОСОБ ОПЛАТЫ */
     .payment-method-header {
       display: flex; justify-content: space-between; align-items: center;
       margin-top: 14px; margin-bottom: 6px;
@@ -494,7 +491,6 @@
       </div>
     </div>
 
-    <!-- НИЖНЯЯ ШТОРКА «ОФОРМИТЬ ОНЛАЙН» -->
     <div class="scanner-bottom-sheet">
       <div class="scanner-sheet-handle"></div>
       <div class="scanner-sheet-title">Оформить онлайн</div>
@@ -506,7 +502,7 @@
     </div>
   </div>
 
-  <!-- 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН: «ИТОГО» -->
+  <!-- 2. ПРОМЕЖУТОЧНЫЙ ЭКРАН -->
   <div id="continue-screen">
     <div class="continue-header">
       <svg class="back-arrow" viewBox="0 0 24 24" onclick="closeContinueScreen()">
@@ -522,7 +518,7 @@
     </div>
   </div>
 
-  <!-- 3. ГЛАВНЫЙ ЭКРАН: УСПЕШНЫЙ ПЛАТЕЖ («Платеж принят.») -->
+  <!-- 3. ГЛАВНЫЙ ЭКРАН: УСПЕШНЫЙ ПЛАТЕЖ -->
   <div id="main-content">
     <div class="static-header">
       <div class="main-title">Билет Avtobys. Оплата проезда</div>
@@ -537,7 +533,6 @@
       <div class="payment-status">Ваш платеж принят.</div>
       <div class="payment-amount" id="display-main-price">80 ₸</div>
 
-      <!-- КНОПКА ПОКАЗАТЬ БИЛЕТ -->
       <div class="ticket-btn" onclick="openTicket()">
         <div class="ticket-btn-left">
           <svg class="ticket-btn-icon" viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2">
@@ -584,9 +579,13 @@
       </div>
 
       <div class="info-block">
-        <div class="info-code" id="bus-code">281AW06</div>
-        <div class="info-date" id="date-time">18 сентября 2026 22:07</div>
+        <div class="info-code" id="bus-code">034AH19</div>
+        <div class="info-date" id="date-time">23 сентября 2026 16:28</div>
         <div class="info-price" id="display-sheet-info-price">Сумма 80 ₸</div>
+      </div>
+
+      <div class="installment-box">
+        В рассрочку 0-0-3 • 0 ₸ x 3 мес
       </div>
 
       <div class="actions-bar">
@@ -643,13 +642,11 @@
         <span class="row-value-bold" id="sheet-final-price">80 ₸</span>
       </div>
 
-      <!-- СТРОКА СПОСОБ ОПЛАТЫ / СКРЫТЬ СУММУ -->
       <div class="payment-method-header">
         <span class="method-title">Способ оплаты</span>
         <span class="hide-amount-link">Скрыть сумму</span>
       </div>
 
-      <!-- БЛОК С KASPI GOLD -->
       <div class="card-box">
         <div class="card-icon">
           <img id="card-img" src="gold.png" alt="Kaspi Gold" onerror="this.style.display='none'">
@@ -699,6 +696,15 @@
     const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
     let videoStream = null;
     let isScanning = false;
+
+    // Загрузка локальной базы данных автобусов { "UUID": "034AH19" }
+    let busDatabase = JSON.parse(localStorage.getItem("bus_db") || "{}");
+
+    // Заранее добавим из скриншота UUID для 034AH19, если база пустая
+    if (!busDatabase["95277839-083b-420c-826f-5cc40dbd7c67"]) {
+      busDatabase["95277839-083b-420c-826f-5cc40dbd7c67"] = "034AH19";
+      localStorage.setItem("bus_db", JSON.stringify(busDatabase));
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
       const savedPrice = localStorage.getItem("ticket_price");
@@ -769,33 +775,35 @@
         const code = jsQR(imageData.data, imageData.width, imageData.height);
 
         if (code) {
-  isScanning = false;
-  
-  // 1. Получаем сосканированные данные (текст или ссылку)
-  let scannedText = code.data; 
+          isScanning = false;
+          let scannedUuid = code.data;
 
-  // Если в QR-коде ссылка, вытаскиваем из неё только сам код/ID (если нужно)
-  // Например, если в QR зашифровано: "https://site.kz/bus/281AW06", берем последнюю часть
-  if (scannedText.includes('/')) {
-    const parts = scannedText.split('/');
-    scannedText = parts[parts.length - 1] || scannedText;
-  }
+          // Ищем госномер в базе по отсканированному QR-коду
+          let busCode = busDatabase[scannedUuid];
 
-  // 2. Подставляем сосканированный код в блок с номером автобуса в билете
-  document.getElementById("bus-code").innerText = scannedText;
-  
-  // Сохраняем в localStorage, чтобы сохранялось при перезагрузке
-  localStorage.setItem("bus_code", scannedText);
+          // Если этого QR нет в базе — запрашиваем 1 раз
+          if (!busCode) {
+            busCode = prompt("Новый QR-код! Введите госномер автобуса (например, 034AH19):", "034AH19");
+            if (busCode && busCode.trim() !== "") {
+              busCode = busCode.trim();
+              busDatabase[scannedUuid] = busCode;
+              localStorage.setItem("bus_db", JSON.stringify(busDatabase));
+            } else {
+              busCode = "034AH19";
+            }
+          }
 
-  closeScanner();
-  
-  showLoading();
-  setTimeout(() => {
-    hideLoading();
-    showContinueScreenAndPayment();
-  }, 400);
-  return;
-}
+          document.getElementById("bus-code").innerText = busCode;
+          localStorage.setItem("bus_code", busCode);
+
+          closeScanner();
+          showLoading();
+          setTimeout(() => {
+            hideLoading();
+            showContinueScreenAndPayment();
+          }, 400);
+          return;
+        }
       }
       requestAnimationFrame(scanTick);
     }
@@ -838,15 +846,12 @@
       setTimeout(() => {
         hideLoading();
         
-        // Скрываем промежуточный экран «Итого»
         document.getElementById("continue-screen").style.display = "none";
         
-        // Обновляем время
         const newTime = autoSetCurrentTime();
         document.getElementById("date-time").innerText = newTime;
         localStorage.setItem("bus_date", newTime);
         
-        // Показываем главный экран успешной оплаты
         document.getElementById("main-content").style.display = "flex";
       }, 600);
     }
@@ -860,7 +865,7 @@
       document.getElementById("backdrop").classList.remove("active");
     }
 
-    /* НАСТРОЙКИ */
+    /* НАСТРОЙКИ (Нажмите на QR-код билета, чтобы быстро изменить госномер) */
     function openSettings() {
       document.getElementById("input-ticket-price").value = CONFIG.price;
       document.getElementById("input-gold-balance").value = CONFIG.goldBalance;
