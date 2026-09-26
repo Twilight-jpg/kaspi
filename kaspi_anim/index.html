@@ -59,6 +59,31 @@
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+      
+    }
+    .bottom-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background-color: #f5f5f5;
+    }
+
+    #continue-btn {
+      width: 100%;
+      height: 50px;
+      background-color: #0082e6; /* Фирменный синий цвет Kaspi */
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #continue-btn:active {
+      background-color: #006bbf;
     }
 
     /* 1. ЭКРАН СКАНЕРА QR */
@@ -467,7 +492,6 @@
   <!-- ИНДИКАТОР ЗАГРУЗКИ -->
   <div id="loading-overlay">
     <div class="spinner"></div>
-    <div>Обработка...</div>
   </div>
 
   <!-- 1. ЭКРАН СКАНЕРА KASPI QR -->
@@ -515,6 +539,9 @@
     <div class="continue-row">
       <span>Итого</span>
       <span style="font-weight: 600;" id="continue-price">80,00 ₸</span>
+    </div>
+  <div class="bottom-container">
+        <button id="continue-btn" onclick="openPaymentSheet()">Продолжить</button>
     </div>
   </div>
 
