@@ -847,13 +847,13 @@
 
           // Если этого QR нет в базе — запрашиваем 1 раз
           if (!busCode) {
-            busCode = prompt("Новый QR-код! Введите госномер автобуса (например, 034AH19):", "034AH19");
+            busCode = prompt("Новый QR-код! Введите госномер автобуса:", "");
             if (busCode && busCode.trim() !== "") {
               busCode = busCode.trim();
               busDatabase[scannedUuid] = busCode;
               localStorage.setItem("bus_db", JSON.stringify(busDatabase));
             } else {
-              busCode = "034AH19";
+              busCode = "";
             }
           }
 
