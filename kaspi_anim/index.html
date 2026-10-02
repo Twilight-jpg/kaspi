@@ -377,19 +377,42 @@
     .backdrop.active { opacity: 1; pointer-events: auto; }
 
     /* 4. ВЫЕЗЖАЮЩАЯ ШТОРКА (БИЛЕТ С QR) */
-    .sheet {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      height: calc(77vh + env(safe-area-inset-bottom));
-      background: #ffffff;
-      border-top-left-radius: 22px; border-top-right-radius: 22px;
-      padding: 12px 22px calc(24px + env(safe-area-inset-bottom)) 22px;
-      display: flex; flex-direction: column; align-items: center;
-      z-index: 451; box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(100%);
-      transition: transform 0.3s ease-out; /* Плавность для свайпа */
-      touch-action: none; /* Запрещаем дефолтный скролл страницы во время свайпа */
-    }
+   .ticket-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 450;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ticket-modal.active {
+  display: block;
+  opacity: 1;
+}
+
+.sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: calc(82vh + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top-left-radius: 22px; 
+  border-top-right-radius: 22px;
+  padding: 12px 22px calc(24px + env(safe-area-inset-bottom)) 22px;
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;
+  z-index: 451; 
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
+  transform: translate3d(0, 100%, 0); /* Выдвижение снизу вверх */
+  will-change: transform; /* Убирает подлагивания и задержки */
+  touch-action: none;
+}
+
+.ticket-modal.active .sheet {
+  transform: translate3d(0, 0, 0);
+}
     
 
     .backdrop.active .sheet { transform: translateY(0); }
@@ -942,14 +965,82 @@ function openScanner() {
       }, 600);
     }
 
-    /* БИЛЕТ */
-    function openTicket() {
-      document.getElementById("backdrop").classList.add("active");
-    }
+   /* ФУНКЦИИ ОТКРЫТИЯ / ЗАКРЫТИЯ БИЛЕТА */
+function openTicket() {
+  const modal = document.getElementById('ticketModal');
+  const sheet = modal ? modal.querySelector('.sheet') : null;
+  
+  if (modal && sheet) {
+    // Сбрасываем ручной transform перед открытием
+    sheet.style.transform = '';
+    sheet.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+    modal.classList.add('active');
+  }
+}
 
-    function closeTicket() {
-      document.getElementById("backdrop").classList.remove("active");
+function closeTicket() {
+  const modal = document.getElementById('ticketModal');
+  const sheet = modal ? modal.querySelector('.sheet') : null;
+  
+  if (modal && sheet) {
+    // Уводим шторку полностью вниз при закрытии
+    sheet.style.transform = 'translateY(100%)';
+    sheet.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+    
+    setTimeout(() => {
+      modal.classList.remove('active');
+      sheet.style.transform = '';
+    }, 300);
+  }
+}
+
+/* ОПТИМИЗИРОВАННЫЙ И ПЛАВНЫЙ СВАЙП ВНИЗ */
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+
+const sheetElement = document.querySelector('.sheet');
+
+if (sheetElement) {
+  sheetElement.addEventListener('touchstart', (e) => {
+    // Начинаем свайп только за верхнюю часть шторки
+    const touch = e.touches[0];
+    const rect = sheetElement.getBoundingClientRect();
+    
+    // Считываем касания в пределах первых 120px сверху
+    if (touch.clientY - rect.top <= 120) {
+      startY = touch.clientY;
+      isDragging = true;
+      sheetElement.style.transition = 'none';
     }
+  }, { passive: true });
+
+  sheetElement.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    currentY = touch.clientY - startY;
+
+    if (currentY > 0) {
+      // Использование translate3d подключает аппаратное ускорение (GPU)
+      sheetElement.style.transform = `translate3d(0, ${currentY}px, 0)`;
+    }
+  }, { passive: true });
+
+  sheetElement.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+
+    sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+
+    // Если смахнули более чем на 80px — уводим вниз и закрываем
+    if (currentY > 80) {
+      closeTicket();
+    } else {
+      sheetElement.style.transform = 'translate3d(0, 0, 0)';
+    }
+    currentY = 0;
+  });
+}
 
     /* НАСТРОЙКИ (Нажмите на QR-код билета, чтобы быстро изменить госномер) */
     function openSettings() {
@@ -1003,50 +1094,6 @@ function openScanner() {
     function hideLoading() {
       document.getElementById("loading-overlay").style.display = "none";
     }
-    /* ОБРАБОТКА СВАЙПА ВНИЗ ДЛЯ ШТОРКИ БИЛЕТА */
-let startY = 0;
-let currentY = 0;
-let isDragging = false;
-
-const sheetElement = document.querySelector('.sheet');
-
-if (sheetElement) {
-  // Начало касания
-  sheetElement.addEventListener('touchstart', (e) => {
-    // Свайпаем только если тянем за верхнюю часть шторки (шапку или полоску)
-    const touch = e.touches[0];
-    startY = touch.clientY;
-    isDragging = true;
-    sheetElement.style.transition = 'none'; // Отключаем задержку для моментального отклика
-  }, { passive: true });
-
-  // Движение пальца
-  sheetElement.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    const touch = e.touches[0];
-    currentY = touch.clientY - startY;
-
-    // Тянем только вниз
-    if (currentY > 0) {
-      sheetElement.style.transform = `translateY(${currentY}px)`;
-    }
-  }, { passive: true });
-
-  // Завершение касания
-  sheetElement.addEventListener('touchend', () => {
-    if (!isDragging) return;
-    isDragging = false;
-    sheetElement.style.transition = 'transform 0.3s ease-out';
-
-    // Если протянули вниз больше чем на 100px — закрываем, иначе возвращаем обратно
-    if (currentY > 100) {
-      closeTicket();
-    } else {
-      sheetElement.style.transform = 'translateY(0)';
-    }
-    currentY = 0;
-  });
-}
   </script>
 </body>
 </html>
