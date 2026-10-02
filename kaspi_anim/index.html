@@ -382,7 +382,7 @@
       position: fixed;
       left: 0; right: 0; bottom: 0;
       height: auto;
-      max-height: 88vh;
+      max-height: 95vh;
       background: #ffffff;
       border-top-left-radius: 22px; 
       border-top-right-radius: 22px;
@@ -795,9 +795,14 @@
 
       if (sheetElement) {
         sheetElement.addEventListener('touchstart', (e) => {
-          startY = e.touches[0].clientY;
-          isDragging = true;
-          sheetElement.style.transition = 'none';
+          const touch = e.touches[0];
+          const rect = sheetElement.getBoundingClientRect();
+          
+          if (touch.clientY - rect.top <= 140) {
+            startY = touch.clientY;
+            isDragging = true;
+            sheetElement.style.transition = 'none';
+          }
         }, { passive: true });
 
         sheetElement.addEventListener('touchmove', (e) => {
@@ -814,15 +819,10 @@
           if (!isDragging) return;
           isDragging = false;
 
-          sheetElement.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
+          sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
 
-          if (currentY > 120) {
-            sheetElement.style.transform = 'translate3d(0, 100%, 0)';
-            setTimeout(() => {
-              closeTicket();
-              sheetElement.style.transform = '';
-              sheetElement.style.transition = '';
-            }, 250);
+          if (currentY > 80) {
+            closeTicket();
           } else {
             sheetElement.style.transform = 'translate3d(0, 0, 0)';
           }
