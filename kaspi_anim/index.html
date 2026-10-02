@@ -699,6 +699,38 @@
       </div>
     </div>
   </div>
+  <!-- МОДАЛЬНОЕ ОКНО БИЛЕТА -->
+<div class="ticket-modal" id="ticketModal" onclick="if(event.target === this) closeTicket()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    
+    <div class="ticket-modal-header">
+      <span class="ticket-modal-title">Билет Avtobys. Оплата проезда</span>
+      <button class="ticket-modal-close" onclick="closeTicket()">&#10005;</button>
+    </div>
+
+    <div class="qr-container">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=AvtobysTicket" alt="QR Code" class="ticket-qr-img">
+    </div>
+
+    <p class="qr-subtext">Покажите QR-код контролеру</p>
+    
+    <div class="ticket-info-code">034AH19</div>
+    <div class="ticket-info-date">2 октября 2026 20:20</div>
+    <div class="ticket-info-price">Сумма 80 ₸</div>
+
+    <div class="ticket-actions">
+      <button class="ticket-action-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Квитанция</span>
+      </button>
+      <button class="ticket-action-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Поделиться</span>
+      </button>
+    </div>
+  </div>
+</div>
 
   <!-- 5. ШТОРКА ОПЛАТЫ KASPI -->
   <div id="payment-overlay" class="backdrop" onclick="closePaymentSheet()">
@@ -965,16 +997,18 @@ function openScanner() {
       }, 600);
     }
 
-   /* ФУНКЦИИ ОТКРЫТИЯ / ЗАКРЫТИЯ БИЛЕТА */
+ /* ФУНКЦИИ ОТКРЫТИЯ И ЗАКРЫТИЯ */
 function openTicket() {
   const modal = document.getElementById('ticketModal');
   const sheet = modal ? modal.querySelector('.sheet') : null;
   
   if (modal && sheet) {
-    // Сбрасываем ручной transform перед открытием
-    sheet.style.transform = '';
-    sheet.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-    modal.classList.add('active');
+    modal.style.display = 'block';
+    // Небольшая задержка, чтобы браузер успел применить display перед анимацией
+    setTimeout(() => {
+      modal.classList.add('active');
+      sheet.style.transform = 'translate3d(0, 0, 0)';
+    }, 10);
   }
 }
 
@@ -983,37 +1017,62 @@ function closeTicket() {
   const sheet = modal ? modal.querySelector('.sheet') : null;
   
   if (modal && sheet) {
-    // Уводим шторку полностью вниз при закрытии
-    sheet.style.transform = 'translateY(100%)';
-    sheet.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+    modal.classList.remove('active');
+    sheet.style.transform = 'translate3d(0, 100%, 0)';
     
     setTimeout(() => {
-      modal.classList.remove('active');
-      sheet.style.transform = '';
+      modal.style.display = 'none';
     }, 300);
   }
 }
 
-/* ОПТИМИЗИРОВАННЫЙ И ПЛАВНЫЙ СВАЙП ВНИЗ */
+/* ПЛАВНЫЙ СВАЙП ВНИЗ (БЕЗ ЛАГОВ) */
 let startY = 0;
 let currentY = 0;
 let isDragging = false;
 
-const sheetElement = document.querySelector('.sheet');
+document.addEventListener('DOMContentLoaded', () => {
+  const sheetElement = document.querySelector('.sheet');
 
-if (sheetElement) {
-  sheetElement.addEventListener('touchstart', (e) => {
-    // Начинаем свайп только за верхнюю часть шторки
-    const touch = e.touches[0];
-    const rect = sheetElement.getBoundingClientRect();
-    
-    // Считываем касания в пределах первых 120px сверху
-    if (touch.clientY - rect.top <= 120) {
-      startY = touch.clientY;
-      isDragging = true;
-      sheetElement.style.transition = 'none';
-    }
-  }, { passive: true });
+  if (sheetElement) {
+    sheetElement.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      const rect = sheetElement.getBoundingClientRect();
+      
+      // Срабатывает при касании верхней части шторки (шапка/хэндл)
+      if (touch.clientY - rect.top <= 140) {
+        startY = touch.clientY;
+        isDragging = true;
+        sheetElement.style.transition = 'none';
+      }
+    }, { passive: true });
+
+    sheetElement.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+      currentY = touch.clientY - startY;
+
+      if (currentY > 0) {
+        sheetElement.style.transform = `translate3d(0, ${currentY}px, 0)`;
+      }
+    }, { passive: true });
+
+    sheetElement.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+
+      // Если смахнули вниз больше чем на 80px — закрываем
+      if (currentY > 80) {
+        closeTicket();
+      } else {
+        sheetElement.style.transform = 'translate3d(0, 0, 0)';
+      }
+      currentY = 0;
+    });
+  }
+});
 
   sheetElement.addEventListener('touchmove', (e) => {
     if (!isDragging) return;
