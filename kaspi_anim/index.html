@@ -382,7 +382,7 @@
       position: fixed;
       left: 0; right: 0; bottom: 0;
       height: auto;
-      max-height: 82vh;
+      max-height: 88vh;
       background: #ffffff;
       border-top-left-radius: 22px; 
       border-top-right-radius: 22px;
@@ -436,7 +436,7 @@
       font-size: 16px; color: #8e8e93; margin-top: 35px; margin-bottom: 10px;
     }
 
-    .info-block { text-align: center; margin-bottom: 18px; color: #000; }
+    .info-block { text-align: center; margin-bottom: 25px; color: #000; }
     .info-code { font-size: 16px; margin-top: 2px; font-weight: 700; }
     .info-date { font-size: 16px; margin-top: 18px; }
     .info-price { font-size: 16px; margin-top: 2px; }
@@ -795,14 +795,9 @@
 
       if (sheetElement) {
         sheetElement.addEventListener('touchstart', (e) => {
-          const touch = e.touches[0];
-          const rect = sheetElement.getBoundingClientRect();
-        
-          if (touch.clientY - rect.top <= 140) {
-            startY = touch.clientY;
-            isDragging = true;
-            sheetElement.style.transition = 'none';
-          }
+          startY = e.touches[0].clientY;
+          isDragging = true;
+          sheetElement.style.transition = 'none';
         }, { passive: true });
 
         sheetElement.addEventListener('touchmove', (e) => {
@@ -819,15 +814,15 @@
           if (!isDragging) return;
           isDragging = false;
 
-          sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+          sheetElement.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
 
-          if (currentY > 80) {
+          if (currentY > 120) {
             sheetElement.style.transform = 'translate3d(0, 100%, 0)';
             setTimeout(() => {
               closeTicket();
               sheetElement.style.transform = '';
               sheetElement.style.transition = '';
-            }, 300);
+            }, 250);
           } else {
             sheetElement.style.transform = 'translate3d(0, 0, 0)';
           }
