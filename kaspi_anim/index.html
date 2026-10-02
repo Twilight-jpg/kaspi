@@ -789,59 +789,59 @@
       openScanner();
 
      // Настройка свайпа вниз для шторки билета
-      const sheetElement = document.querySelector('#backdrop .sheet');
-      let startY = 0;
-      let currentY = 0;
-      let isDragging = false;
+  const sheetElement = document.querySelector('#backdrop .sheet');
+  let startY = 0;
+  let currentY = 0;
+  let isDragging = false;
 
-      if (sheetElement) {
-     sheetElement.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    const rect = sheetElement.getBoundingClientRect();
+  if (sheetElement) {
+    sheetElement.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      const rect = sheetElement.getBoundingClientRect();
     
     // Свайп срабатывает при касании в верхней зоне шторки (140px)
-    if (touch.clientY - rect.top <= 140) {
-      startY = touch.clientY;
-      isDragging = true;
-      sheetElement.style.transition = 'none';
-    }
-  }, { passive: true });
+      if (touch.clientY - rect.top <= 140) {
+        startY = touch.clientY;
+        isDragging = true;
+        sheetElement.style.transition = 'none';
+      }
+    }, { passive: true });
 
-  sheetElement.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    const touch = e.touches[0];
-    currentY = touch.clientY - startY;
+    sheetElement.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+      currentY = touch.clientY - startY;
 
-    if (currentY > 0) {
-      sheetElement.style.transform = `translate3d(0, ${currentY}px, 0)`;
-    }
-  }, { passive: true });
+      if (currentY > 0) {
+        sheetElement.style.transform = `translate3d(0, ${currentY}px, 0)`;
+      }
+    }, { passive: true });
 
-  sheetElement.addEventListener('touchend', () => {
-    if (!isDragging) return;
-    isDragging = false;
+    sheetElement.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
 
-    sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+      sheetElement.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
 
-    if (currentY > 80) {
+      if (currentY > 80) {
       // 1. Принудительно отправляем шторку за пределы экрана вниз (100%)
-      sheetElement.style.transform = 'translate3d(0, 100%, 0)';
+        sheetElement.style.transform = 'translate3d(0, 100%, 0)';
       
       // 2. Ждем окончания анимации (300ms) и только потом полностью закрываем
-      setTimeout(() => {
-        closeTicket();
+        setTimeout(() => {
+          closeTicket();
         // Очищаем инлайн-стили, чтобы CSS снова полностью контролировал положение
-        sheetElement.style.transform = '';
-        sheetElement.style.transition = '';
-      }, 300);
-    } else {
+          sheetElement.style.transform = '';
+          sheetElement.style.transition = '';
+        }, 300);
+      } else {
       // Если недотянули — возвращаем в исходное открытое положение
-      sheetElement.style.transform = 'translate3d(0, 0, 0)';
-    }
+        sheetElement.style.transform = 'translate3d(0, 0, 0)';
+      }
 
-    currentY = 0;
-  });
-}
+         currentY = 0;
+       });
+     }
 
     function updateUI() {
       const priceVal = CONFIG.price;
