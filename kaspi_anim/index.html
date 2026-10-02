@@ -387,8 +387,10 @@
       display: flex; flex-direction: column; align-items: center;
       z-index: 451; box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
       transform: translateY(100%);
-      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: transform 0.3s ease-out; /* Плавность для свайпа */
+      touch-action: none; /* Запрещаем дефолтный скролл страницы во время свайпа */
     }
+    
 
     .backdrop.active .sheet { transform: translateY(0); }
 
@@ -1001,6 +1003,50 @@ function openScanner() {
     function hideLoading() {
       document.getElementById("loading-overlay").style.display = "none";
     }
+    /* ОБРАБОТКА СВАЙПА ВНИЗ ДЛЯ ШТОРКИ БИЛЕТА */
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+
+const sheetElement = document.querySelector('.sheet');
+
+if (sheetElement) {
+  // Начало касания
+  sheetElement.addEventListener('touchstart', (e) => {
+    // Свайпаем только если тянем за верхнюю часть шторки (шапку или полоску)
+    const touch = e.touches[0];
+    startY = touch.clientY;
+    isDragging = true;
+    sheetElement.style.transition = 'none'; // Отключаем задержку для моментального отклика
+  }, { passive: true });
+
+  // Движение пальца
+  sheetElement.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    currentY = touch.clientY - startY;
+
+    // Тянем только вниз
+    if (currentY > 0) {
+      sheetElement.style.transform = `translateY(${currentY}px)`;
+    }
+  }, { passive: true });
+
+  // Завершение касания
+  sheetElement.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    sheetElement.style.transition = 'transform 0.3s ease-out';
+
+    // Если протянули вниз больше чем на 100px — закрываем, иначе возвращаем обратно
+    if (currentY > 100) {
+      closeTicket();
+    } else {
+      sheetElement.style.transform = 'translateY(0)';
+    }
+    currentY = 0;
+  });
+}
   </script>
 </body>
 </html>
