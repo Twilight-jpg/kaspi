@@ -381,8 +381,8 @@
     .sheet {
       position: fixed;
       left: 0; right: 0; bottom: 0;
-      height: 75vh;
-      max-height: 75vh;
+      height: auto; /* Высота подстраивается под контент */
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
       background: #ffffff;
       border-top-left-radius: 20px; 
       border-top-right-radius: 20px;
@@ -444,9 +444,10 @@
     .action-icon-img { width: 28px; height: 28px; object-fit: contain; }
     .actions-bar {
       width: 100%; max-width: 290px; margin-top: 35px; margin-bottom: 10px;
-      display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0 20px !important;
+      display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0 20px;
     }
-    .action-btn { display: flex; flex-direction: column; width: auto; align-items: center; gap: 15px; }
+    .action-btn { display: flex; flex-direction: column;  align-items: center; gap: 15px;
+    }
 
     /* ШТОРКА ОПЛАТЫ KASPI */
     .payment-sheet {
